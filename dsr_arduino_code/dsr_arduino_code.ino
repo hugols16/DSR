@@ -1,3 +1,4 @@
+#include "source/DeviceState.cpp"
 // Pins
 const int TRIG_PIN = 7;
 const int ECHO_PIN = 8;
@@ -55,6 +56,8 @@ void loop() {
   } else {
     Serial.print(dist);
     Serial.print(" cm \n");
+    Serial.print(RAMP_SEARCH);
+    Serial.print(" \n");
   }
   delay(60);
 }
