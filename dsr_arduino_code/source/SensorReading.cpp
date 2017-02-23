@@ -1,7 +1,7 @@
 const int TRIG_PIN = 7;
 const int ECHO_PIN = 8;
 
-float sensor_reading() {
+float sensorReading() {
   unsigned long t1;
   unsigned long t2;
   unsigned long pulse_width;

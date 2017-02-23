@@ -1,5 +1,5 @@
 #include "source/DeviceState.cpp"
-#include "source/sensor_reading.cpp"
+#include "source/SensorReading.cpp"
 
 // Pins
 //const int TRIG_PIN = 7;
@@ -29,7 +29,7 @@ void setup() {
 
 void loop() {
 
-  float dist = sensor_reading();
+  float dist = sensorReading();
   if ( dist > MAX_DIST ) {
     Serial.println("Out of range");
   } else {
