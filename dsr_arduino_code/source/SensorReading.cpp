@@ -1,5 +1,4 @@
-const int TRIG_PIN = 7;
-const int ECHO_PIN = 8;
+#include "Defines.h"
 
 float sensorReading() {
   unsigned long t1;
