@@ -2,6 +2,8 @@ enum STATES {
     INIT,
     READY,
     RAMP_SEARCH,
+    RAMP_TURN,
+    RAMP_AHEAD,
     RAMP_UP,
     RAMP_LEVEL,
     RAMP_DOWN,

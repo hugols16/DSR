@@ -80,28 +80,57 @@ void setup() {
 
 void ramp_searching() {
   float ultrasonic_left = sensorReadingLeft();
-  Serial.println("Searching for ramp");
-  if (ultrasonic_left < (RAMP_DIST_Y + 10) || x_pos >= RAMP_DIST_X) {
-    // rotate 90 degrees to the left
-    while(1){
-      Serial.println("Turning");  
+  float ultrasonic_front = sensorReadingFront();
+  switch(state->current) {
+  case RAMP_SEARCH:
+    //motorRight.drive(MAX_SPEED/2.0);
+    //motorLeft.drive(MAX_SPEED/2.0);
+    Serial.println("Searching for ramp");
+    if (ultrasonic_left < (RAMP_DIST_Y + 10) || x_pos >= RAMP_DIST_X) {
+      state->transition();
     }
-//    motorLeft.brake();
-//    motorRight.drive(MAX_SPEED/2.0);
-    //while(not 90 degree turn){}
+    break;
+  case RAMP_TURN:
+    //motorLeft.brake();
+    //motorRight.drive(MAX_SPEED/2.0);
+    if (ultrasonic_front < (RAMP_DIST_Y + 10) && ultrasonic_front > 20) {
+      state->transition();
+    }
+    break;
+  case RAMP_AHEAD:
+    //motorRight.drive(MAX_SPEED/2.0);
+    //motorLeft.drive(MAX_SPEED/2.0);
+    if (ultrasonic_front < 10) {
+      delay(300);
+    }
+    state->transition();
+    break;
+  }
+}
 
-    // Move straight
-    //motor1.drive(MAX_SPEED);
-    //motor2.drive(MAX_SPEED);
-    
-    // drive to the ramp BY RAMP_DIST_X centimeters
-    //while (y_dist < RAMP_DIST_Y) {}
-    
-    // Change states
-    //state->transition();
-  } else {
-//    motorRight.drive(MAX_SPEED/2.0);
-//    motorLeft.drive(MAX_SPEED/2.0);
+void ramp_moving() {
+  switch(state->current) {
+  case RAMP_UP:
+    motorLeft.drive(MAX_SPEED);
+    motorRight.drive(MAX_SPEED);
+//    if (abs(imu_value - ramp_up_imu_value) > 0.04) {
+//      state->transition();
+//    }
+    break;
+  case RAMP_LEVEL:
+    motorLeft.drive(MAX_SPEED);
+    motorRight.drive(MAX_SPEED);
+//    if (abs(imu_value - ramp_top_imu_value) > 0.04) {
+//      state->transition();
+//    }
+    break;
+  case RAMP_DOWN:
+    motorLeft.brake();
+    motorRight.brake();
+//    if (abs(imu_value - ramp_down_imu_value) > 0.04) {
+//      state->transition();
+//    }
+    break;
   }
 }
 void loop() {
@@ -109,38 +138,33 @@ void loop() {
 //  Serial.println(sensorValue);
   
   dist = sensorReadingFront();
-//  Serial.print(state->current);
-//  Serial.print(" \n");
   switch(state->current) {
     case READY:
-      Serial.println("Ready State");
-      if (dist < 20) {
-        state->transition();
-      }
       break;
     case RAMP_SEARCH:
+    case RAMP_TURN:
+    case RAMP_AHEAD:
       ramp_searching();
       break;
     case RAMP_UP:
-      break;
     case RAMP_LEVEL:
-      break;
     case RAMP_DOWN:
+      ramp_moving();
       break;
     case SEARCHING:
       break;
   }
-  if ( dist > MAX_DIST ) {
-    Serial.println("Out of range");
-  } else {
-    Serial.print(dist);
-    Serial.print(" cm \n");
-  }
-//  imu.readMag(); // Update the accelerometer data
-//  Serial.print(imu.calcMag(imu.mx)); // Print x-axis data
-//  Serial.print(", ");
-//  Serial.print(imu.calcMag(imu.my)); // print y-axis data
-//  Serial.print(", ");
-//  Serial.println(imu.calcMag(imu.mz)); // print z-axis data
+//  if ( dist > MAX_DIST ) {
+//    Serial.println("Out of range");
+//  } else {
+//    Serial.print(dist);
+//    Serial.print(" cm \n");
+//  }
+  imu.readMag(); // Update the magnetometer data
+  Serial.print(imu.mx); // Print x-axis data
+  Serial.print(", ");
+  Serial.print(imu.my); // print y-axis data
+  Serial.print(", ");
+  Serial.println(imu.mz); // print z-axis data
   delay(60);
 }
