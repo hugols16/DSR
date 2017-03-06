@@ -16,6 +16,8 @@ private:
   static int leftDiff;
   static int usRight;
   static int rightDiff;
+  static int usBack;
+  static int backDiff;
 
   LSM9DS1 imu_m;
 
@@ -23,19 +25,35 @@ private:
   static float aY;
   static float aZ;
 
+  static float gX;
+  static float gY;
+  static float gZ;
+
   static float mX;
   static float mY;
   static float heading;
 
 
 public:
+  DataManager() {
+    usFront = sensorReadingFront();
+    usLeft = sensorReadingLeft();
+    usRight = sensorReadingRight();
+    usBack = sensorReadingBack();
+  }
+
   int getUsFront() { return usFront; }
   int getUsLeft() { return usLeft; }
   int getUsRight() { return usRight; }
+  int getUsBack() { return usBack; }
 
   float getAccX() { return aX; }
   float getAccY() { return aY; }
   float getAccZ() { return aZ; }
+
+  float getGyroX() { return gX; }
+  float getGyroY() { return gY; }
+  float getGyroZ() { return gZ; }
 
   float getHeading() { return heading; }
   float getMagX() { return mX; }
@@ -50,8 +68,10 @@ public:
     updateFrontUS();
     updateLeftUS();
     updateRightUS();
+    updateBackUS();
 
     updateAccel();
+    updateGyro();
     updateMag();
   }
 
@@ -70,6 +90,13 @@ public:
 
   }
 
+  void updateGyro() {
+    imu_m.readGyro();
+    gY = imu_m.calcGyro(imu_m.gy);
+    gX = imu_m.calcGyro(imu_m.gx);
+    gZ = imu_m.calcGyro(imu_m.gz);
+  }
+
   void updateAccel() {
     imu_m.readAccel();
     aY = imu_m.calcAccel(imu_m.ay);
@@ -79,6 +106,7 @@ public:
 
   void updateLeftUS() {
     int leftReading = (int) sensorReadingLeft();
+    if (leftReading == 0) return;
     if (leftReading != usLeft) {
       leftDiff++;
     } else { leftDiff = 0; }
@@ -90,6 +118,7 @@ public:
 
   void updateRightUS() {
     int rightReading = (int) sensorReadingRight();
+    if (rightReading == 0) return;
     if (rightReading != usRight) {
       rightDiff++;
     } else { rightDiff = 0; }
@@ -101,12 +130,25 @@ public:
 
   void updateFrontUS() {
     int frontReading = (int) sensorReadingFront();
+    if (frontReading == 0) return;
     if ( frontReading != usFront) {
       frontDiff++;
     } else { frontDiff = 0; }
     if( frontDiff >= sensitivity ) {
       usFront = frontReading;
       frontDiff = 0;
+    }
+  }
+
+  void updateBackUS() {
+    int backReading = (int) sensorReadingBack();
+    if (backReading == 0) return;
+    if ( backReading != usBack) {
+      backDiff++;
+    } else { backDiff = 0; }
+    if( backDiff >= sensitivity ) {
+      usBack = backReading;
+      backDiff = 0;
     }
   }
 
@@ -118,10 +160,16 @@ int DataManager::usLeft = 0;
 int DataManager::leftDiff = 0;
 int DataManager::usRight = 0;
 int DataManager::rightDiff = 0;
+int DataManager::usBack = 0;
+int DataManager::backDiff = 0;
 
 float DataManager::aX = 0;
 float DataManager::aY = 0;
 float DataManager::aZ = 0;
+
+float DataManager::gX = 0;
+float DataManager::gY = 0;
+float DataManager::gZ = 0;
 
 float DataManager::mX = 0;
 float DataManager::mY = 0;

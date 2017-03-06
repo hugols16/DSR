@@ -27,3 +27,11 @@
 
 // Motor Constants
 #define MAX_SPEED 215
+#define MOTOR_STANDBY 999
+
+// Distances
+#define RAMP_DIST_X 28.0f
+#define RAMP_DIST_Y 45.0f
+
+#define offsetA 1
+#define offsetB 1
