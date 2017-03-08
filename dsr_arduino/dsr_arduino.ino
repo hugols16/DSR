@@ -44,7 +44,8 @@ TimerOne Timer1;
 // Anything over 400 cm (23200 us pulse) is "out of range"
 //const unsigned int MAX_DIST = 400.0;
 
-float const ramp_change = 0.08;
+float level_mz = 0;
+float const ramp_change = 0.07;
 //
 
 void setup() {
@@ -143,11 +144,11 @@ void ramp_searching() {
   case RAMP_AHEAD:
     Serial.println("RAMP_AHEAD");
     move(MAX_SPEED/2, MAX_SPEED/2, 10);
-    cur_mz = dm->getMagZ();
-    Serial.println(cur_mz);
+    level_mz = dm->getMagZ();
+    Serial.println(level_mz);
     new_mz = cur_mz;
     Serial.println(new_mz);
-    while(abs(cur_mz - new_mz) < ramp_change) {
+    while(abs(level_mz - new_mz) < ramp_change) {
       dm->updateMag();
       new_mz = dm->getMagZ();
     }
@@ -157,65 +158,85 @@ void ramp_searching() {
 }
 
 void ramp_moving() {
-  float cur_mz = dm->getMagZ();
-  float new_mz = cur_mz;
+  float ramp_up_mz = dm->getMagZ();
+  float new_mz = ramp_up_mz;
   switch(state->current) {
   case RAMP_UP:
     Serial.println("RAMP_UP");
     move(MAX_SPEED, MAX_SPEED, 20);
-    cur_mz = dm->getMagZ();
-    Serial.println(cur_mz);
-    new_mz = cur_mz;
+    ramp_up_mz = dm->getMagZ();
+    new_mz = ramp_up_mz;
     Serial.println(new_mz);
-    while(abs(cur_mz - new_mz) < ramp_change) {
+//    while(abs(ramp_up_mz - new_mz) < ramp_change) {
+//      dm->updateMag();
+//      new_mz = dm->getMagZ();
+//    }
+    while((new_mz - ramp_up_mz) < 0.1) {
       dm->updateMag();
       new_mz = dm->getMagZ();
     }
     state->transition();
-    break;
-  case RAMP_LEVEL:
-    Serial.println("RAMP_TOP");
-    move(MAX_SPEED/8, MAX_SPEED/8, 100); // Will create a 1 second ramp_down
-    cur_mz = dm->getMagZ();
-    Serial.println(cur_mz);
-    new_mz = cur_mz;
-    Serial.println(new_mz);
-    while(abs(cur_mz - new_mz) < ramp_change) {
-      dm->updateMag();
-      new_mz = dm->getMagZ();
-    }
     state->transition();
     break;
+//  case RAMP_LEVEL:
+//    Serial.println("RAMP_TOP");
+//    move(MAX_SPEED/8, MAX_SPEED/8, 100); // Will create a 1 second ramp_down
+//    cur_mz = dm->getMagZ();
+//    new_mz = cur_mz;
+//    Serial.println(new_mz);
+//    while(abs(cur_mz - new_mz) < ramp_change) {
+//      dm->updateMag();
+//      new_mz = dm->getMagZ();
+//    }
+//    state->transition();
+//    break;
   case RAMP_DOWN:
     Serial.println("RAMP_DOWN");
-    move(0, 0, 1); // Brake on the way down
-    cur_mz = dm->getMagZ();
-    Serial.println(cur_mz);
-    new_mz = cur_mz;
-    Serial.println(new_mz);
-    while(abs(cur_mz - new_mz) < ramp_change) {
+    move(30, 30, 1); // Brake on the way down
+//    cur_mz = dm->getMagZ();
+//    new_mz = cur_mz;
+//    Serial.println(new_mz);
+//    while(abs(cur_mz - new_mz) < ramp_change) {
+//      dm->updateMag();
+//      new_mz = dm->getMagZ();
+//    }
+    while(abs(new_mz -level_mz) > 0.02) {
       dm->updateMag();
       new_mz = dm->getMagZ();
+      Serial.println(new_mz);
+      delay(100);
     }
     state->transition();
     break;
   }
 }
 
-
+void base_searching() {
+  Serial.println("base search");
+  move(MAX_SPEED/3, MAX_SPEED/3, 3);
+  delay(500);
+  float USFront = dm->getUsFront();
+  while(USFront > 20) {
+    dm->updateFrontUS();
+  }
+  move(0,0,1);
+  Serial.println("Done");
+  state->transition();
+}
 void loop() {
   // Update Sensor Values
   dm->update();
   
   switch(state->current) {
     case READY:
-      dm->updateMag();
+      dm->updateGyro();
+//      move(-MAX_SPEED, -MAX_SPEED, 1);
       Serial.println("Ready");
-      Serial.println(dm->getMagZ());
+//      Serial.println(dm->getGyroY());
       if (dm->getUsFront() < 70) {
-//        state->transition();
-//        state->transition();
-//        state->transition();
+        state->transition();
+        state->transition();
+        state->transition();
       }
       break;
     case RAMP_SEARCH:
@@ -229,6 +250,7 @@ void loop() {
       ramp_moving();
       break;
     case SEARCHING:
+    base_searching();
       break;
   }
 //  imu.readMag(); // Update the magnetometer data
