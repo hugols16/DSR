@@ -34,6 +34,8 @@ private:
   static float mZ;
   static float heading;
 
+  static int ir;
+  int ir_val[12] = { 517, 409, 313, 254, 214, 186, 167, 148, 135, 123, 113, 104 };
 
 public:
   DataManager() {
@@ -61,6 +63,8 @@ public:
   float getMagY() { return mY; }
   float getMagZ() { return mZ; }
 
+  float getIR() { return ir; }
+
   void setDataManagerIMU(LSM9DS1 new_imu) {
     imu_m = new_imu;
   }
@@ -75,6 +79,24 @@ public:
     updateAccel();
     updateGyro();
     updateMag();
+    updateIR();
+  }
+
+  void updateIR() {
+    int sensorValue = analogRead(12);
+    if (sensorValue > 517) {
+      ir = 0;
+    }
+    if (sensorValue < 104) {
+      ir = 0;
+    }
+
+    int i = 0;
+    while(ir_val[i] >= sensorValue) {
+      i++;
+    }
+
+    ir = ir * 0.3 + 0.7 * ((int) (10 + 10 * i + 10 * (ir_val[i-1] - sensorValue) / (ir_val[i-1] - ir_val[i])));
   }
 
   void updateMag() {
@@ -89,8 +111,6 @@ public:
     } else {
       heading = atan(mX / mY) * 180 / PI;
     }
-
-
   }
 
   void updateGyro() {
@@ -124,7 +144,9 @@ public:
     if (rightReading == 0) return;
     if (rightReading != usRight) {
       rightDiff++;
-    } else { rightDiff = 0; }
+    } else {
+      rightDiff = 0;
+    }
     if ( rightDiff >= sensitivity ) {
       usRight = rightReading;
       rightDiff = 0;
@@ -136,7 +158,9 @@ public:
     if (frontReading == 0) return;
     if ( frontReading != usFront) {
       frontDiff++;
-    } else { frontDiff = 0; }
+    } else {
+      frontDiff = 0;
+    }
     if( frontDiff >= sensitivity ) {
       usFront = frontReading;
       frontDiff = 0;
@@ -148,7 +172,9 @@ public:
     if (backReading == 0) return;
     if ( backReading != usBack) {
       backDiff++;
-    } else { backDiff = 0; }
+    } else {
+      backDiff = 0;
+    }
     if( backDiff >= sensitivity ) {
       usBack = backReading;
       backDiff = 0;
@@ -178,3 +204,5 @@ float DataManager::mX = 0;
 float DataManager::mY = 0;
 float DataManager::mZ = 0;
 float DataManager::heading = 0;
+
+int DataManager::ir = 0;
