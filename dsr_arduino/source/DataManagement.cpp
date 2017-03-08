@@ -31,6 +31,7 @@ private:
 
   static float mX;
   static float mY;
+  static float mZ;
   static float heading;
 
 
@@ -58,6 +59,7 @@ public:
   float getHeading() { return heading; }
   float getMagX() { return mX; }
   float getMagY() { return mY; }
+  float getMagZ() { return mZ; }
 
   void setDataManagerIMU(LSM9DS1 new_imu) {
     imu_m = new_imu;
@@ -80,6 +82,7 @@ public:
     // Hardcoded values are experimental center of ellipse values.
     mX = imu_m.calcMag(imu_m.mx) * 100.0 + 12.3672 + 10;
     mY = imu_m.calcMag(imu_m.my) * 100.0  - 2.7035 + 2.5;
+    mZ = imu_m.calcMag(imu_m.mz);
     // heading = atan(mX / mY) * 180 / PI;
     if(mY < 0.0) {
       heading = atan(mX / mY) * 180 / PI + 180.0;
@@ -173,4 +176,5 @@ float DataManager::gZ = 0;
 
 float DataManager::mX = 0;
 float DataManager::mY = 0;
+float DataManager::mZ = 0;
 float DataManager::heading = 0;

@@ -44,6 +44,7 @@ TimerOne Timer1;
 // Anything over 400 cm (23200 us pulse) is "out of range"
 //const unsigned int MAX_DIST = 400.0;
 
+float const ramp_change = 0.08;
 //
 
 void setup() {
@@ -56,6 +57,11 @@ void setup() {
   imu.settings.gyro.scale = 720; // Set gyro range to +/-720dps
   imu.settings.mag.scale = 2; // Set mag range to +/-2Gs
 
+  if (!imu.begin()) {
+    Serial.println("Failed to communicate with LSM9DS1.");
+    Serial.println("Looping to infinity.");
+    while (1);
+  }
   // Create Data Manager
   dm = new DataManager();
   dm->setDataManagerIMU(imu);
@@ -80,11 +86,6 @@ void setup() {
   
   Serial.begin(9600);
 
-  if (!imu.begin()) {
-    Serial.println("Failed to communicate with LSM9DS1.");
-    Serial.println("Looping to infinity.");
-    while (1);
-  }
   // Move to READY
   state->transition();
 }
@@ -111,10 +112,8 @@ void ramp_searching() {
   float ultrasonic_left = dm->getUsLeft();
   float ultrasonic_front = dm->getUsFront();
   float ultrasonic_back = dm->getUsBack();
-  int count = 0, sensitivity = 6;
-  int min_distance = 2000; // Set a distance stupid high
-  unsigned long time1;
-  unsigned long time2;
+  float cur_mz = dm->getMagZ();
+  float new_mz = cur_mz;
   switch(state->current) {
   case RAMP_SEARCH:
     move(MAX_SPEED/2, MAX_SPEED/2, 4);
@@ -125,39 +124,7 @@ void ramp_searching() {
     }
     break;
   case RAMP_TURN:
-//    Serial.println("Turning to ramp");
-//    move(MAX_SPEED/2, -1*MAX_SPEED/2, 4);
-//    time1 = millis();
-//    while(ultrasonic_back <= min_distance || count < sensitivity || ultrasonic_back > 30) {
-//      Serial.println("Not 90 degrees");
-//      Serial.println(min_distance);
-//      if (ultrasonic_back > min_distance) {
-//        count++;
-//      } else {
-//        time1 = millis(); //Reset time 1
-//        count = 0;
-//        min_distance = ultrasonic_back;
-//      }
-//      dm->updateBackUS();
-//      ultrasonic_back = dm->getUsBack();
-//    }
-//    time2 = millis();
-//    move(-1*MAX_SPEED/2, MAX_SPEED/2,1);
-//    // reset count
-//    count = 0;
-//    while(ultrasonic_back > min_distance || count < sensitivity) {
-//      if (ultrasonic_back <= min_distance){
-//        count++;
-//      } else {
-//        count = 0;
-//      }
-//      dm->updateBackUS();
-//      ultrasonic_back = dm->getUsBack();
-//    }
-//    move(0,0,1);
-//    state->transition();
-
-      move(MAX_SPEED/2, -1*MAX_SPEED/2, 4);
+      //move(MAX_SPEED/2, -1*MAX_SPEED/2, 4);
       sensor = analogRead(IR_PIN);
       // Get below 50
       while(sensor > 50) {
@@ -174,76 +141,81 @@ void ramp_searching() {
     break;
     
   case RAMP_AHEAD:
-    move(MAX_SPEED, MAX_SPEED, 10);
-    if (ultrasonic_front < 15) {
-      delay(300);
+    Serial.println("RAMP_AHEAD");
+    move(MAX_SPEED/2, MAX_SPEED/2, 10);
+    cur_mz = dm->getMagZ();
+    Serial.println(cur_mz);
+    new_mz = cur_mz;
+    Serial.println(new_mz);
+    while(abs(cur_mz - new_mz) < ramp_change) {
+      dm->updateMag();
+      new_mz = dm->getMagZ();
     }
     state->transition();
     break;
   }
 }
 
-//void ramp_moving() {
-//  switch(state->current) {
-//  case RAMP_UP:
-//    move(MAX_SPEED/2, MAX_SPEED/2, 1);
-////    if (abs(imu_value - ramp_up_imu_value) > 0.04) {
-////      state->transition();
-////    }
-//    break;
-//  case RAMP_LEVEL:
-//    move(MAX_SPEED/2, MAX_SPEED/2, 1);
-////    if (abs(imu_value - ramp_top_imu_value) > 0.04) {
-////      state->transition();
-////    }
-//    break;
-//  case RAMP_DOWN:
-//    move(0, 0, 1);
-////    if (abs(imu_value - ramp_down_imu_value) > 0.04) {
-////      state->transition();
-////    }
-//    break;
-//  }
-//}
+void ramp_moving() {
+  float cur_mz = dm->getMagZ();
+  float new_mz = cur_mz;
+  switch(state->current) {
+  case RAMP_UP:
+    Serial.println("RAMP_UP");
+    move(MAX_SPEED, MAX_SPEED, 20);
+    cur_mz = dm->getMagZ();
+    Serial.println(cur_mz);
+    new_mz = cur_mz;
+    Serial.println(new_mz);
+    while(abs(cur_mz - new_mz) < ramp_change) {
+      dm->updateMag();
+      new_mz = dm->getMagZ();
+    }
+    state->transition();
+    break;
+  case RAMP_LEVEL:
+    Serial.println("RAMP_TOP");
+    move(MAX_SPEED/8, MAX_SPEED/8, 100); // Will create a 1 second ramp_down
+    cur_mz = dm->getMagZ();
+    Serial.println(cur_mz);
+    new_mz = cur_mz;
+    Serial.println(new_mz);
+    while(abs(cur_mz - new_mz) < ramp_change) {
+      dm->updateMag();
+      new_mz = dm->getMagZ();
+    }
+    state->transition();
+    break;
+  case RAMP_DOWN:
+    Serial.println("RAMP_DOWN");
+    move(0, 0, 1); // Brake on the way down
+    cur_mz = dm->getMagZ();
+    Serial.println(cur_mz);
+    new_mz = cur_mz;
+    Serial.println(new_mz);
+    while(abs(cur_mz - new_mz) < ramp_change) {
+      dm->updateMag();
+      new_mz = dm->getMagZ();
+    }
+    state->transition();
+    break;
+  }
+}
 
-//void turn(float turn_degrees) {
-//  // Turn off motors
-//  move(0,0,1);
-//  // Update dm
-//  dm->updateGyro();
-//  float current_vel = dm->getGyroZ();
-//  float degree = 0;
-//  float turn_step = 10;
-//  float turn_time = 0;
-//  move(100,0,1);
-//  for (int i = 1; i <= turn_step; i++) {
-//    turn_time = 1000*turn_degrees/(turn_step*current_vel); // get turning time in milliseconds
-//    Serial.println("Index: ");
-//    Serial.print(i);
-//    Serial.println("Time(ms): ");
-//    Serial.print(turn_time);
-//    delay(abs(turn_time));
-//    dm->updateGyro();
-//    current_vel = dm->getGyroZ();
-//  }
-//  move(0,0,1);
-//}
 
 void loop() {
   // Update Sensor Values
-//  Serial.println("Hello");
-//  int sensor = analogRead(IR_PIN);
-//  Serial.println(sensor);
   dm->update();
   
   switch(state->current) {
     case READY:
+      dm->updateMag();
       Serial.println("Ready");
-      move(0, 0, 1);
-      Serial.println(dm->getUsFront());
-      Serial.println(RAMP_DIST_X);
+      Serial.println(dm->getMagZ());
       if (dm->getUsFront() < 70) {
-        state->transition();
+//        state->transition();
+//        state->transition();
+//        state->transition();
       }
       break;
     case RAMP_SEARCH:
@@ -254,16 +226,12 @@ void loop() {
     case RAMP_UP:
     case RAMP_LEVEL:
     case RAMP_DOWN:
-//      ramp_moving();
+      ramp_moving();
       break;
     case SEARCHING:
       break;
   }
-//  imu.readGyro(); // Update the magnetometer data
-//  Serial.print(imu.calcGyro(imu.gx)); // Print x-axis data
-//  Serial.print(", ");
-//  Serial.print(imu.calcGyro(imu.gy)); // print y-axis data
-//  Serial.print(", ");
-//  Serial.println(imu.calcGyro(imu.gz)); // print z-axis data
+//  imu.readMag(); // Update the magnetometer data
+//  Serial.println(imu.calcMag(imu.mz)); // print z-axis data
 //  delay(60);
 }
