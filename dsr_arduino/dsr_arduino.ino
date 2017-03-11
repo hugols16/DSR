@@ -10,7 +10,6 @@
 #include "source/Defines.h"
 #include "source/DeviceState.cpp"
 #include "source/DataManagement.cpp"
-#include "source/TimerOne.h"
 
 class DSRMotor: public Motor {
   private:
@@ -25,8 +24,8 @@ class DSRMotor: public Motor {
 };
 
 // Create motor objects
-DSRMotor motorRight = DSRMotor(AIN1, AIN2, PWMA, offsetA, STBY);
-DSRMotor motorLeft = DSRMotor(BIN1, BIN2, PWMB, offsetB, STBY);
+DSRMotor motorLeft = DSRMotor(AIN1, AIN2, PWMA, offsetA, STBY);
+DSRMotor motorRight = DSRMotor(BIN1, BIN2, PWMB, offsetB, STBY);
 
 // Create IMU object
 LSM9DS1 imu;
@@ -37,16 +36,39 @@ DeviceState* state;
 // Create Global Data Manager
 DataManager* dm;
 
-// Create Global Timer Object
-TimerOne Timer1;
-
 //Might want to put the following in the Defines
 // Anything over 400 cm (23200 us pulse) is "out of range"
 //const unsigned int MAX_DIST = 400.0;
 
 float level_mz = 0;
 float const ramp_change = 0.07;
+
+//float readSensor() {
+//  unsigned long t1;
+//  unsigned long t2;
+//  unsigned long pulse_width;
+//  float cm;
+//  float inches;
 //
+//  // Hold the trigger pin high for at least 10 us
+//  digitalWrite(TRIG_PIN, HIGH);
+//  delayMicroseconds(10);
+//  digitalWrite(TRIG_PIN, LOW);
+//  Serial.println("Yo");
+//  // Wait for pulse on echo pin
+//  while ( digitalRead(ECHO_PIN) == 0 );
+//  // Measure how long the echo pin was held high (pulse width)
+//  // Note: the micros() counter will overflow after ~70 min
+//  t1 = micros();
+//  while ( digitalRead(ECHO_PIN) == 1);
+//  t2 = micros();
+//  pulse_width = t2 - t1;
+//
+//  // Calculate distance in centimeters and inches. The constants
+//  // are found in the datasheet, and calculated from the assumed speed 
+//  //of sound in air at sea level (~340 m/s).
+//  return pulse_width / 58.0;
+//}
 
 void setup() {
   
@@ -66,20 +88,16 @@ void setup() {
   // Create Data Manager
   dm = new DataManager();
   dm->setDataManagerIMU(imu);
-
   // Set up the Ultrasonic Sensors
   pinMode(TRIG_PIN_FRONT, OUTPUT);
   digitalWrite(TRIG_PIN_FRONT, LOW);
-
   pinMode(TRIG_PIN_RIGHT, OUTPUT);
   digitalWrite(TRIG_PIN_RIGHT, LOW);
-
   pinMode(TRIG_PIN_LEFT, OUTPUT);
   digitalWrite(TRIG_PIN_LEFT, LOW);
-
   pinMode(TRIG_PIN_BACK, OUTPUT);
   digitalWrite(TRIG_PIN_BACK, LOW);
-  
+
   // Create State Machine
   state = new DeviceState();
   
@@ -112,20 +130,21 @@ void ramp_searching() {
   int sensor = 0;
   float ultrasonic_left = dm->getUsLeft();
   float ultrasonic_front = dm->getUsFront();
+//  float ultrasonic_front = readSensor();
   float ultrasonic_back = dm->getUsBack();
   float cur_mz = dm->getMagZ();
   float new_mz = cur_mz;
   switch(state->current) {
   case RAMP_SEARCH:
-    move(MAX_SPEED/2, MAX_SPEED/2, 4);
+    move(MAX_SPEED/2, MAX_SPEED/2, 10);
     Serial.println("Searching for ramp");
     Serial.println(ultrasonic_front);
     if (ultrasonic_front < (RAMP_DIST_X)) {
-      state->transition();
+//      state->transition();
     }
     break;
   case RAMP_TURN:
-      //move(MAX_SPEED/2, -1*MAX_SPEED/2, 4);
+      move(-1*MAX_SPEED/2, MAX_SPEED/2, 4);
       sensor = analogRead(IR_PIN);
       // Get below 50
       while(sensor > 50) {
@@ -133,7 +152,7 @@ void ramp_searching() {
         Serial.println(sensor);
       }
 
-      while(sensor < 300) {
+      while(sensor < 200) {
         sensor = analogRead(IR_PIN);
         Serial.println(sensor);
       }
@@ -143,15 +162,15 @@ void ramp_searching() {
     
   case RAMP_AHEAD:
     Serial.println("RAMP_AHEAD");
-    move(MAX_SPEED/2, MAX_SPEED/2, 10);
-    level_mz = dm->getMagZ();
-    Serial.println(level_mz);
-    new_mz = cur_mz;
-    Serial.println(new_mz);
-    while(abs(level_mz - new_mz) < ramp_change) {
-      dm->updateMag();
-      new_mz = dm->getMagZ();
-    }
+    move(MAX_SPEED, MAX_SPEED, 20);
+//    level_mz = dm->getMagZ();
+//    Serial.println(level_mz);
+//    new_mz = cur_mz;
+//    Serial.println(new_mz);
+//    while(abs(level_mz - new_mz) < ramp_change) {
+//      dm->updateMag();
+//      new_mz = dm->getMagZ();
+//    }
     state->transition();
     break;
   }
@@ -167,10 +186,6 @@ void ramp_moving() {
     ramp_up_mz = dm->getMagZ();
     new_mz = ramp_up_mz;
     Serial.println(new_mz);
-//    while(abs(ramp_up_mz - new_mz) < ramp_change) {
-//      dm->updateMag();
-//      new_mz = dm->getMagZ();
-//    }
     while((new_mz - ramp_up_mz) < 0.1) {
       dm->updateMag();
       new_mz = dm->getMagZ();
@@ -178,28 +193,9 @@ void ramp_moving() {
     state->transition();
     state->transition();
     break;
-//  case RAMP_LEVEL:
-//    Serial.println("RAMP_TOP");
-//    move(MAX_SPEED/8, MAX_SPEED/8, 100); // Will create a 1 second ramp_down
-//    cur_mz = dm->getMagZ();
-//    new_mz = cur_mz;
-//    Serial.println(new_mz);
-//    while(abs(cur_mz - new_mz) < ramp_change) {
-//      dm->updateMag();
-//      new_mz = dm->getMagZ();
-//    }
-//    state->transition();
-//    break;
   case RAMP_DOWN:
     Serial.println("RAMP_DOWN");
     move(30, 30, 1); // Brake on the way down
-//    cur_mz = dm->getMagZ();
-//    new_mz = cur_mz;
-//    Serial.println(new_mz);
-//    while(abs(cur_mz - new_mz) < ramp_change) {
-//      dm->updateMag();
-//      new_mz = dm->getMagZ();
-//    }
     while(abs(new_mz -level_mz) > 0.02) {
       dm->updateMag();
       new_mz = dm->getMagZ();
@@ -226,18 +222,12 @@ void base_searching() {
 void loop() {
   // Update Sensor Values
   dm->update();
-  
+//  Serial.println("Hello");
+//  float sensor = readSensor();
+//  Serial.println(sensor);
   switch(state->current) {
     case READY:
-      dm->updateGyro();
-//      move(-MAX_SPEED, -MAX_SPEED, 1);
-      Serial.println("Ready");
-//      Serial.println(dm->getGyroY());
-      if (dm->getUsFront() < 70) {
-        state->transition();
-        state->transition();
-        state->transition();
-      }
+      state->transition();
       break;
     case RAMP_SEARCH:
     case RAMP_TURN:
@@ -255,5 +245,5 @@ void loop() {
   }
 //  imu.readMag(); // Update the magnetometer data
 //  Serial.println(imu.calcMag(imu.mz)); // print z-axis data
-//  delay(60);
+  delay(60);
 }

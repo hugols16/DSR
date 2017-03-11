@@ -1,8 +1,8 @@
 // Ultrasonic Pins
-#define ECHO_PIN_FRONT 31
-#define TRIG_PIN_FRONT 33
-#define ECHO_PIN_RIGHT 35
-#define TRIG_PIN_RIGHT 37
+#define ECHO_PIN_RIGHT 31
+#define TRIG_PIN_RIGHT 33
+#define ECHO_PIN_FRONT 35
+#define TRIG_PIN_FRONT 37
 #define ECHO_PIN_LEFT 39
 #define TRIG_PIN_LEFT 41
 #define ECHO_PIN_BACK 43
@@ -14,7 +14,7 @@
 #define LSM9DS1_AG  0x6B // Would be 0x6A if SDO_AG is LOW
 
 // IR Pins
-#define IR_PIN A12
+#define IR_PIN A15
 
 // Motor Pins
 #define AIN1 9
