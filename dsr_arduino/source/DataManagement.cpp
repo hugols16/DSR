@@ -45,10 +45,10 @@ public:
     usBack = sensorReadingBack();
   }
 
-  int getUsFront() { return usFront; }
-  int getUsLeft() { return usLeft; }
-  int getUsRight() { return usRight; }
-  int getUsBack() { return usBack; }
+  int getFrontUS() { return usFront; }
+  int getLeftUS() { return usLeft; }
+  int getRightUS() { return usRight; }
+  int getBackUS() { return usBack; }
 
   float getAccX() { return aX; }
   float getAccY() { return aY; }
