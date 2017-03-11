@@ -85,9 +85,7 @@ void setup() {
     Serial.println("Looping to infinity.");
     while (1);
   }
-  // Create Data Manager
-  dm = new DataManager();
-  dm->setDataManagerIMU(imu);
+
   // Set up the Ultrasonic Sensors
   pinMode(TRIG_PIN_FRONT, OUTPUT);
   digitalWrite(TRIG_PIN_FRONT, LOW);
@@ -97,6 +95,10 @@ void setup() {
   digitalWrite(TRIG_PIN_LEFT, LOW);
   pinMode(TRIG_PIN_BACK, OUTPUT);
   digitalWrite(TRIG_PIN_BACK, LOW);
+  
+  // Create Data Manager
+  dm = new DataManager();
+  dm->setDataManagerIMU(imu);
 
   // Create State Machine
   state = new DeviceState();
@@ -130,31 +132,45 @@ void ramp_searching() {
   int sensor = 0;
   float ultrasonic_left = dm->getUsLeft();
   float ultrasonic_front = dm->getUsFront();
-//  float ultrasonic_front = readSensor();
   float ultrasonic_back = dm->getUsBack();
   float cur_mz = dm->getMagZ();
   float new_mz = cur_mz;
   switch(state->current) {
   case RAMP_SEARCH:
-    move(MAX_SPEED/2, MAX_SPEED/2, 10);
-    Serial.println("Searching for ramp");
+    move(MAX_SPEED*0.75, MAX_SPEED*0.75, 10);
+//    Serial.println("Searching for ramp");
     Serial.println(ultrasonic_front);
-    if (ultrasonic_front < (RAMP_DIST_X)) {
-//      state->transition();
+    while(!(ultrasonic_front < 70 && ultrasonic_front > 40)) {
+      Serial.println("Not yet 70");
+      dm->updateFrontUS();
+      ultrasonic_front = dm->getUsFront();
+      Serial.println(ultrasonic_front);
+      delay(60);
     }
+    while(ultrasonic_front > RAMP_DIST_X) {
+      Serial.println("Not yet 28");
+      dm->updateFrontUS();
+      ultrasonic_front = dm->getUsFront();
+      Serial.println(ultrasonic_front);
+      delay(60);
+    }
+    state->transition();
     break;
   case RAMP_TURN:
+//      move(0,0,1);
       move(-1*MAX_SPEED/2, MAX_SPEED/2, 4);
       sensor = analogRead(IR_PIN);
       // Get below 50
-      while(sensor > 50) {
+      while(sensor > 170) {
         sensor = analogRead(IR_PIN);
         Serial.println(sensor);
+//        delay(50);
       }
 
-      while(sensor < 200) {
+      while(sensor < 220) {
         sensor = analogRead(IR_PIN);
         Serial.println(sensor);
+//        delay(50);
       }
       move(MAX_SPEED/2, MAX_SPEED/2, 1);
       state->transition();
@@ -223,8 +239,10 @@ void loop() {
   // Update Sensor Values
   dm->update();
 //  Serial.println("Hello");
-//  float sensor = readSensor();
-//  Serial.println(sensor);
+  float sensor = analogRead(IR_PIN);
+  Serial.println(sensor);
+//  float dist = dm->getUsFront();
+//  Serial.println(dist);
   switch(state->current) {
     case READY:
       state->transition();
@@ -245,5 +263,5 @@ void loop() {
   }
 //  imu.readMag(); // Update the magnetometer data
 //  Serial.println(imu.calcMag(imu.mz)); // print z-axis data
-  delay(60);
+  delay(100);
 }
