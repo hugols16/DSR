@@ -35,3 +35,7 @@
 
 #define offsetA 1
 #define offsetB 1
+
+#define TURN_TOLERANCE 0.1
+#define RIGHT 0
+#define LEFT 1

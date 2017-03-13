@@ -45,7 +45,8 @@ public:
     usBack = sensorReadingBack();
   }
 
-  int getFrontUS() { return usFront; }
+  // int getFrontUS() { return usFront; }
+  int getFrontUS() { return sensorReadingFront(); }
   int getLeftUS() { return usLeft; }
   int getRightUS() { return usRight; }
   int getBackUS() { return usBack; }
@@ -117,7 +118,7 @@ public:
     imu_m.readGyro();
     gY = imu_m.calcGyro(imu_m.gy);
     gX = imu_m.calcGyro(imu_m.gx);
-    gZ = imu_m.calcGyro(imu_m.gz);
+    gZ = imu_m.calcGyro(imu_m.gz) - 2.5637;
   }
 
   void updateAccel() {
