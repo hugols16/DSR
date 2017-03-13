@@ -10,22 +10,8 @@
 #include "source/Defines.h"
 #include "source/DeviceState.cpp"
 #include "source/DataManagement.cpp"
-
-class DSRMotor: public Motor {
-  private:
-    int cur_speed;
-  public:
-    DSRMotor(int In1pin, int In2pin, int PWMpin, int offset, int STBYpin):
-    Motor(In1pin, In2pin, PWMpin, offset, STBYpin) {
-      cur_speed = 0;  
-    }
-    int getCurrentSpeed() {return cur_speed;}
-    void setCurrentSpeed(int new_speed) {cur_speed = new_speed;}      
-};
-
-// Create motor objects
-DSRMotor motorLeft = DSRMotor(AIN1, AIN2, PWMA, offsetA, STBY);
-DSRMotor motorRight = DSRMotor(BIN1, BIN2, PWMB, offsetB, STBY);
+#include "source/MotorControl.cpp"
+#include "source/RampSearching.cpp"
 
 // Create IMU object
 LSM9DS1 imu;
@@ -65,19 +51,19 @@ float const ramp_change = 0.07;
 //  pulse_width = t2 - t1;
 //
 //  // Calculate distance in centimeters and inches. The constants
-//  // are found in the datasheet, and calculated from the assumed speed 
+//  // are found in the datasheet, and calculated from the assumed speed
 //  //of sound in air at sea level (~340 m/s).
 //  return pulse_width / 58.0;
 //}
 
 void setup() {
-  
+
   // Setting up the imu
   imu.settings.device.commInterface = IMU_MODE_I2C; // Set mode to I2C
   imu.settings.device.mAddress = LSM9DS1_M; // Set mag address to 0x1E
   imu.settings.device.agAddress = LSM9DS1_AG; // Set ag address to 0x6B
   imu.settings.accel.scale = 4; // Set accel range to +/-4g
-  imu.settings.gyro.scale = 720; // Set gyro range to +/-720dps
+  imu.settings.gyro.scale = 500; // Set gyro range to +/-720dps
   imu.settings.mag.scale = 2; // Set mag range to +/-2Gs
 
   if (!imu.begin()) {
@@ -95,16 +81,14 @@ void setup() {
   digitalWrite(TRIG_PIN_LEFT, LOW);
   pinMode(TRIG_PIN_BACK, OUTPUT);
   digitalWrite(TRIG_PIN_BACK, LOW);
-  
+
   // Create Data Manager
   dm = new DataManager();
   dm->setDataManagerIMU(imu);
 
   // Create State Machine
   state = new DeviceState();
-  
- 
-  
+
   Serial.begin(9600);
 
   // Move to READY
@@ -175,7 +159,7 @@ void ramp_searching() {
       move(MAX_SPEED/2, MAX_SPEED/2, 1);
       state->transition();
     break;
-    
+
   case RAMP_AHEAD:
     Serial.println("RAMP_AHEAD");
     move(MAX_SPEED, MAX_SPEED, 20);
