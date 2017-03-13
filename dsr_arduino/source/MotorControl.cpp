@@ -41,7 +41,7 @@ void turn(bool dir, float deg, DataManager * dm) {
   int t1 = micros(), t2;
 //  float v1 = 0, v2 = 0, v3 = 0;
   float speed_ratio = 0.5;
-  move(dir ? MAX_SPEED*speed_ratio : -MAX_SPEED*speed_ratio,  dir ? -MAX_SPEED*speed_ratio : MAX_SPEED*speed_ratio, 5);
+  move(dir ? MAX_SPEED_RIGHT*speed_ratio : -MAX_SPEED_RIGHT*speed_ratio,  dir ? -MAX_SPEED_LEFT*speed_ratio : MAX_SPEED_LEFT*speed_ratio, 5);
 
   while(abs(current_deg - deg) > 4.0) {
     t2 = t1;
