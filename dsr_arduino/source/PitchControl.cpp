@@ -1,6 +1,6 @@
 #pragma once
 #include "DataManagement.cpp"
-#include "Defines.cpp"
+#include "Defines.h"
 
 void waitFor(int dir, int deg, DataManager * dm) {
   float current_deg = 0;
