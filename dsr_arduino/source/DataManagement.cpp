@@ -39,14 +39,13 @@ private:
 
 public:
   DataManager() {
-    usFront = sensorReadingFront();
-    usLeft = sensorReadingLeft();
-    usRight = sensorReadingRight();
-    usBack = sensorReadingBack();
+    // usFront = sensorReadingFront();
+    // usLeft = sensorReadingLeft();
+    // usRight = sensorReadingRight();
+    // usBack = sensorReadingBack();
   }
 
-  // int getFrontUS() { return usFront; }
-  int getFrontUS() { return sensorReadingFront(); }
+  int getFrontUS() { return usFront; }
   int getLeftUS() { return usLeft; }
   int getRightUS() { return usRight; }
   int getBackUS() { return usBack; }
