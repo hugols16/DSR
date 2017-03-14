@@ -115,7 +115,7 @@ public:
 
   void updateGyro() {
     imu_m.readGyro();
-    gY = imu_m.calcGyro(imu_m.gy);
+    gY = imu_m.calcGyro(imu_m.gy) + 0.6683;
     gX = imu_m.calcGyro(imu_m.gx);
     gZ = imu_m.calcGyro(imu_m.gz) - 2.5637;
   }
