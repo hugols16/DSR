@@ -58,9 +58,9 @@ void turn(bool dir, float deg, DataManager * dm) {
   move(0, 0, 1);
 }
 
-float printHeading(DataManager * dm) {
+float getHeadingDiff(DataManager * dm) {
   float currentDeg = 0;
-  int t1 = micros(), t2,
+  int t1 = micros(), t2;
   int startTime = t1;
 
   while(t1 - startTime < 2000000) {
@@ -72,4 +72,24 @@ float printHeading(DataManager * dm) {
   }
 
   return currentDeg;
+}
+
+void moveDist(int targetDist, DataManager * dm) {
+
+  float dist = 0, vel = 0, acc;
+  int t1 = micros(), t2;
+
+  move(MAX_SPEED_RIGHT, MAX_SPEED_LEFT, 3);
+
+  while(dist < targetDist) {
+    t2 = t1;
+    t1 = micros();
+    dm->updateAccel();
+    vel += dm->getAccX() * (t1 - t2) * 0.000001;
+    dist += vel * (t1 - t2) * 0.000001;
+
+    delay(5);
+  }
+
+  move(0, 0, 1);
 }
