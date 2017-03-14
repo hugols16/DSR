@@ -67,7 +67,7 @@ float getHeadingDiff(DataManager * dm) {
     t2 = t1;
     t1 = micros();
     dm->updateGyro();
-    currentDeg += (dm->getGyroZ() * (t1 - t2) * 0.000001) * (dir ? 1.0 : -1.0);
+    currentDeg += dm->getGyroZ() * (t1 - t2) * 0.000001;
     Serial.println(currentDeg);
   }
 
