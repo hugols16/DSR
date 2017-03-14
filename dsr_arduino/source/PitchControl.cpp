@@ -14,7 +14,7 @@ void waitFor(int dir, int deg, DataManager * dm) {
       current_deg += dm->getGyroY() * (t1 - t2) * 0.000001;
     }
   } else if (dir == DOWN) {
-    while (current_deg > deg) {
+    while (current_deg > -1.0*deg) {
       t2 = t1;
       t1 = micros();
       dm->updateGyro();
