@@ -12,6 +12,7 @@ void waitFor(int dir, int deg, DataManager * dm) {
       t1 = micros();
       dm->updateGyro();
       current_deg += dm->getGyroY() * (t1 - t2) * 0.000001;
+      delay(5);
     }
   } else if (dir == DOWN) {
     while (current_deg > -1.0*deg) {
@@ -19,6 +20,7 @@ void waitFor(int dir, int deg, DataManager * dm) {
       t1 = micros();
       dm->updateGyro();
       current_deg += dm->getGyroY() * (t1 - t2) * 0.000001;
+      delay(5);
     }
   } else {
     Serial.println("Inavlid waitFor Heading direction");
