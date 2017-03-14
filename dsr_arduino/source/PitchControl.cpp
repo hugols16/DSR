@@ -6,7 +6,7 @@ void waitFor(int dir, int deg, DataManager * dm) {
   float current_deg = 0;
   int t1 = micros(), t2;
 
-  if(dir == UP) {
+  if(dir == DOWN) {
     while(current_deg < deg) {
       t2 = t1;
       t1 = micros();
@@ -14,7 +14,7 @@ void waitFor(int dir, int deg, DataManager * dm) {
       current_deg += dm->getGyroY() * (t1 - t2) * 0.000001;
       delay(5);
     }
-  } else if (dir == DOWN) {
+  } else if (dir == UP) {
     while (current_deg > -1.0*deg) {
       t2 = t1;
       t1 = micros();
