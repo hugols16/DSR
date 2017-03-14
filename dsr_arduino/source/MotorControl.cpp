@@ -38,7 +38,7 @@ void move(int speedRight, int speedLeft, int ramp_step) {
 // dir 0 -> right turn ,  dir 1 -> left turn
 void turn(bool dir, float deg, DataManager * dm) {
   float currentDeg = 0;
-  int t1 = micros(), t2;
+  unsigned long t1 = micros(), t2;
 //  float v1 = 0, v2 = 0, v3 = 0;
   float speedRatio = 0.5;
   move(dir ? MAX_SPEED_RIGHT*speedRatio : -MAX_SPEED_RIGHT*speedRatio,  dir ? -MAX_SPEED_LEFT*speedRatio : MAX_SPEED_LEFT*speedRatio, 5);
@@ -60,16 +60,15 @@ void turn(bool dir, float deg, DataManager * dm) {
 
 float getHeadingDiff(DataManager * dm) {
   float currentDeg = 0;
-  int t1 = micros(), t2;
+  unsigned long t1 = micros(), t2;
   delay(2);
-  int startTime = t1;
+  unsigned long startTime = t1;
 
   while(t1 - startTime < 2000000) {
     t2 = t1;
     t1 = micros();
     dm->updateGyro();
     currentDeg += dm->getGyroZ() * (t1 - t2) * 0.000001;
-    // Serial.println(currentDeg);
   }
 
   return currentDeg;
@@ -78,7 +77,7 @@ float getHeadingDiff(DataManager * dm) {
 void moveDist(int targetDist, DataManager * dm) {
 
   float dist = 0, vel = 0, acc;
-  int t1 = micros(), t2;
+  unsigned long t1 = micros(), t2;
 
   move(MAX_SPEED_RIGHT, MAX_SPEED_LEFT, 3);
 
