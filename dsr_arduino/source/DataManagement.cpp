@@ -19,7 +19,7 @@ private:
   static int usBack;
   static int backDiff;
 
-  LSM9DS1 imu_m;
+  static LSM9DS1 imu_m;
 
   static float aX;
   static float aY;
@@ -210,3 +210,5 @@ float DataManager::mZ = 0;
 float DataManager::heading = 0;
 
 int DataManager::ir = 0;
+
+LSM9DS1 DataManager::imu_m;

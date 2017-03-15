@@ -5,23 +5,26 @@
 #include "MotorControl.cpp"
 #include "PitchControl.cpp"
 
-void ramp_searching(DataManager * dm, DeviceState* state) {
+void ramp_searching() {
+  DeviceState state;
+  DataManager dm;
+
   // int sensor = 0;
-  float ultrasonic_front = dm->getFrontUS();
-  switch(state->current) {
+  float ultrasonic_front = dm.getFrontUS();
+  switch(state.current) {
   case RAMP_SEARCH:
     move(MAX_SPEED_RIGHT*0.75, MAX_SPEED_LEFT*0.75, 10);
     while(!(ultrasonic_front < 70 && ultrasonic_front > 40)) {
-      dm->updateFrontUS();
-      ultrasonic_front = dm->getFrontUS();
+      dm.updateFrontUS();
+      ultrasonic_front = dm.getFrontUS();
       delay(60);
     }
     while(ultrasonic_front > RAMP_DIST_X) {
-      dm->updateFrontUS();
-      ultrasonic_front = dm->getFrontUS();
+      dm.updateFrontUS();
+      ultrasonic_front = dm.getFrontUS();
       delay(60);
     }
-    state->transition();
+    state.transition();
     break;
   case RAMP_TURN:
 ////      move(0,0,1);
@@ -40,15 +43,15 @@ void ramp_searching(DataManager * dm, DeviceState* state) {
 ////        delay(50);
 //      }
 //      move(MAX_SPEED/2, MAX_SPEED/2, 1);
-      turn(LEFT, 90, dm);
-      state->transition();
+      turn(LEFT, 90);
+      state.transition();
     break;
 
   case RAMP_AHEAD:
     move(MAX_SPEED_RIGHT, MAX_SPEED_LEFT, 20);
-    waitFor(UP, 25, dm);
+    waitFor(UP, 25);
     delay(500);
-    state->transition();
+    state.transition();
     break;
   }
 }

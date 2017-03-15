@@ -2,60 +2,109 @@
 #include "MotorControl.cpp"
 #include "DataManagement.cpp"
 
-float ratio = 1;
-void searchForBase(DataManager * dm) {
-  // Update Sensor Values
-  turn(LEFT, 90, dm);
-  int front_dist = 1000;
-  move(MAX_SPEED_RIGHT*ratio, MAX_SPEED_LEFT*ratio, 3);
+void moveSearchFront(int moveDist) {
+  DataManager dm;
+  move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 20);
 
-  int count = 0;
-  while(count < 20) {
-    dm->updateFrontUS();
-    front_dist = dm->getFrontUS();
+  float backDist;
+  int countBack = 0, countFront = 0;
 
-    if (front_dist < 90) {
-      count++;
+  while(countBack < 4) {
+    dm.updateBackUS();
+    delay(2);
+    dm.updateFrontUS();
+
+    backDist = dm.getBackUS();
+    frontDist = dm.getFrontUS();
+
+    if(frontDist > targetDist) {
+      countFront++;
     } else {
-      count = 0;
+      countFront = 0;
     }
-    Serial.print("front_dist: ");
-    Serial.print(front_dist);
-    Serial.print("\n");
-    delay(20);
-  }
 
-  turn(LEFT, 90, dm);
-
-  for(int i = 0; i < 10; i++) {
-    dm->updateRightUS();
-    int tmp = dm->getRightUS();
-    delay(10);
-  }
-
-  dm->updateRightUS();
-  int start_dist = dm->getRightUS();
-  int right_dist = start_dist;
-
-  count = 0;
-  move(MAX_SPEED_RIGHT*ratio, MAX_SPEED_LEFT*ratio, 3);
-  while(count < 20) {
-    dm->updateRightUS();
-    right_dist = dm->getRightUS();
-    if (abs(start_dist - right_dist) > 30) {
-      count ++;
+    if(backDist < 40) {
+      countBack++;
     } else {
-      count = 0;
+      countBack = 0;
     }
-    Serial.print("right_dist: ");
-    Serial.print(right_dist);
-    Serial.print("\n");
-    delay(20);
+
+    if(countBack > 8) {
+      move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 1);
+      delay(4000);
+      move(0, 0, 1);
+      while(1) {}
+    }
+
+    delay(3);
+  }
+  move(0, 0, 1);
+}
+
+int moveSearchFrontAndSides (int moveDist) {
+  DataManager dm;
+  move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 20);
+
+  float backDist, frontDist, leftDist, rightDist;
+  int countBack = 0, countFront = 0;
+
+  while(countBack < 4) {
+    dm.updateBackUS();
+    delay(2);
+    dm.updateFrontUS();
+    delay(2);
+    dm.updateLeftUS();
+    delay(2);
+    dm.updateRightUS();
+
+    backDist = dm.getBackUS();
+    frontDist = dm.getFrontUS();
+    leftDist = dm.getLeftUS();
+    rightDist = dm.getRightUS();
+
+    if(frontDist > targetDist) {
+      countFront++;
+    } else {
+      countFront = 0;
+    }
+
+    if(backDist < 40) {
+      countBack++;
+    } else {
+      countBack = 0;
+    }
+
+    if(countBack > 8) {
+      move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 1);
+      delay(4000);
+      move(0, 0, 1);
+      while(1) {}
+    }
+
+
+
+    delay(3);
   }
 
-  turn(LEFT, 90, dm);
-  move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 10);
+  move(0, 0, 1);
 
-  delay(2000);
+  return RIGHT;
+}
+
+void searchForBase() {
+
+  DataManager dm;
+  moveSearchFront(100);
+
+  turn(RIGHT, 90);
+
+  int turnDir = moveSearchFrontAndSides(150);
+
+  turn(turnDir, 90);
+
+  move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 3);
+
+  delay(5000);
+
   move(0, 0, 1);
 }

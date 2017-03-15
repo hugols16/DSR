@@ -16,9 +16,9 @@ enum STATES {
 
 class DeviceState {
 public:
-  int current;
+  static int current;
 
-  DeviceState() {
+  void init() {
     current = INIT;
   }
 
@@ -26,3 +26,5 @@ public:
     current++;
   }
 };
+
+int DeviceState::current;

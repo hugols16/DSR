@@ -36,7 +36,8 @@ void move(int speedRight, int speedLeft, int ramp_step) {
 }
 
 // dir 0 -> right turn ,  dir 1 -> left turn
-void turn(bool dir, float deg, DataManager * dm) {
+void turn(bool dir, float deg) {
+  DataManager dm;
   float currentDeg = 0;
   unsigned long t1 = micros(), t2;
 //  float v1 = 0, v2 = 0, v3 = 0;
@@ -46,19 +47,20 @@ void turn(bool dir, float deg, DataManager * dm) {
   while(abs(currentDeg - deg) > 4.0) {
     t2 = t1;
     t1 = micros();
-    dm->updateGyro();
+    dm.updateGyro();
 //    v3 = v2;
 //    v2 = v1;
-//    v1 = dm->getGyroZ();
+//    v1 = dm.getGyroZ();
 //    float vel =  v1 * 0.4 + 0.3 * v2 + 0.3 * v3;
-    currentDeg += (dm->getGyroZ() * (t1 - t2) * 0.000001) * (dir ? 1.0 : -1.0);
+    currentDeg += (dm.getGyroZ() * (t1 - t2) * 0.000001) * (dir ? 1.0 : -1.0);
     delay(5);
   }
 
   move(0, 0, 1);
 }
 
-float getHeadingDiff(DataManager * dm) {
+float getHeadingDiff() {
+  DataManager dm;
   float currentDeg = 0;
   unsigned long t1 = micros(), t2;
   delay(2);
@@ -67,15 +69,16 @@ float getHeadingDiff(DataManager * dm) {
   while(t1 - startTime < 2500000) {
     t2 = t1;
     t1 = micros();
-    dm->updateGyro();
+    dm.updateGyro();
     delay(1);
-    currentDeg += dm->getGyroZ() * (t1 - t2) * 0.000001;
+    currentDeg += dm.getGyroZ() * (t1 - t2) * 0.000001;
   }
 
   return currentDeg;
 }
 
-void moveDist(int targetDist, DataManager * dm) {
+void moveDist(int targetDist) {
+  DataManager dm;
 
   float dist = 0, vel = 0, acc;
   unsigned long t1 = micros(), t2;
@@ -85,8 +88,8 @@ void moveDist(int targetDist, DataManager * dm) {
   while(dist < targetDist) {
     t2 = t1;
     t1 = micros();
-    dm->updateAccel();
-    vel += dm->getAccX() * (t1 - t2) * 0.000001;
+    dm.updateAccel();
+    vel += dm.getAccX() * (t1 - t2) * 0.000001;
     dist += vel * (t1 - t2) * 0.000001;
 
     delay(5);
