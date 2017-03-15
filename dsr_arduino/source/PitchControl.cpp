@@ -4,26 +4,19 @@
 
 void waitFor(int dir, int deg, DataManager * dm) {
   float current_deg = 0;
-  int t1 = micros(), t2;
 
-  if(dir == DOWN) {
+  if(dir == UP) {
     while(current_deg < deg) {
-      t2 = t1;
-      t1 = micros();
       dm->updateGyro();
-      current_deg += dm->getGyroY() * (t1 - t2) * 0.000001;
-      delay(5);
+      current_deg += dm->getGyroY();
     }
-  } else if (dir == UP) {
-    while (current_deg > -1.0*deg) {
-      t2 = t1;
-      t1 = micros();
+  } else if (dir == DOWN) {
+    while (current_deg > deg) {
       dm->updateGyro();
-      current_deg += dm->getGyroY() * (t1 - t2) * 0.000001;
-      delay(5);
+      current_deg += dm->getGyroY();
     }
   } else {
-    Serial.println("Inavlid waitFor Heading direction");
+    Serial.println("Invalid waitFor Heading direction");
     while(1) {}
   }
 }

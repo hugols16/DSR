@@ -60,16 +60,16 @@ void turn(bool dir, float deg, DataManager * dm) {
 
 float getHeadingDiff(DataManager * dm) {
   float currentDeg = 0;
-  int t1 = micros(), t2;
+  unsigned long int t1 = micros(), t2;
   delay(2);
-  int startTime = t1;
+  unsigned long int startTime = t1;
 
-  while(t1 - startTime < 2000000) {
+  while(t1 - startTime < 2500000) {
     t2 = t1;
     t1 = micros();
     dm->updateGyro();
+    delay(1);
     currentDeg += dm->getGyroZ() * (t1 - t2) * 0.000001;
-    // Serial.println(currentDeg);
   }
 
   return currentDeg;

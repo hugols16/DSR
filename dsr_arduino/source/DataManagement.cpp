@@ -6,7 +6,7 @@
 #include "SensorReading.cpp"
 #include <math.h>
 
-const int sensitivity = 5;
+const int sensitivity = 3;
 
 class DataManager {
 private:
@@ -71,9 +71,13 @@ public:
 
   //updater
   void update() {
+    delay(5);
     updateFrontUS();
+    delay(5);
     updateLeftUS();
+    delay(5);
     updateRightUS();
+    delay(5);
     updateBackUS();
 
     updateAccel();
