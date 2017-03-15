@@ -19,10 +19,10 @@
 LSM9DS1 imu;
 
 // Create Global State Machine
-DeviceState* state;
+DeviceState state;
 
 // Create Global Data Manager
-DataManager* dm;
+DataManager dm;
 
 void setup() {
 
@@ -51,35 +51,34 @@ void setup() {
   digitalWrite(TRIG_PIN_BACK, LOW);
 
   delay(100);
-  // Create Data Manager
-  dm = new DataManager();
-  dm->setDataManagerIMU(imu);
-
-  // Create State Machine
-  state = new DeviceState();
+  // Set IMU
+  dm.setDataManagerIMU(imu);
 
   Serial.begin(9600);
 
+  // Set state to INIT
+  state.init();
+
   // Move to READY
-  state->transition();
+  state.transition();
 }
 
 void loop() {
   // Update Sensor Values
-  dm->update();
-  switch(state->current) {
+  dm.update();
+  switch(state.current) {
     case READY:
-      state->transition();
+      state.transition();
       break;
     case RAMP_SEARCH:
     case RAMP_TURN:
     case RAMP_AHEAD:
-      ramp_searching(dm, state);
+      ramp_searching();
       break;
     case RAMP_UP:
     case RAMP_LEVEL:
     case RAMP_DOWN:
-      ramp_moving(dm, state);
+      ramp_moving();
       break;
     case SEARCHING:
       break;
