@@ -38,7 +38,7 @@ void move(int speedRight, int speedLeft, int ramp_step) {
 // dir 0 -> right turn ,  dir 1 -> left turn
 void turn(bool dir, float deg, DataManager * dm) {
   float currentDeg = 0;
-  int t1 = micros(), t2;
+  unsigned long t1 = micros(), t2;
 //  float v1 = 0, v2 = 0, v3 = 0;
   float speedRatio = 0.5;
   move(dir ? MAX_SPEED_RIGHT*speedRatio : -MAX_SPEED_RIGHT*speedRatio,  dir ? -MAX_SPEED_LEFT*speedRatio : MAX_SPEED_LEFT*speedRatio, 5);
@@ -60,9 +60,15 @@ void turn(bool dir, float deg, DataManager * dm) {
 
 float getHeadingDiff(DataManager * dm) {
   float currentDeg = 0;
+<<<<<<< HEAD
   unsigned long int t1 = micros(), t2;
   delay(2);
   unsigned long int startTime = t1;
+=======
+  unsigned long t1 = micros(), t2;
+  delay(2);
+  unsigned long startTime = t1;
+>>>>>>> 6dd9417c8bc24ebe2a36f4aa6ac4197bad0df63c
 
   while(t1 - startTime < 2500000) {
     t2 = t1;
@@ -78,7 +84,7 @@ float getHeadingDiff(DataManager * dm) {
 void moveDist(int targetDist, DataManager * dm) {
 
   float dist = 0, vel = 0, acc;
-  int t1 = micros(), t2;
+  unsigned long t1 = micros(), t2;
 
   move(MAX_SPEED_RIGHT, MAX_SPEED_LEFT, 3);
 
