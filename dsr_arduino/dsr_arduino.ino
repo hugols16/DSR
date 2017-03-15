@@ -211,13 +211,14 @@ void ramp_moving() {
 //    state->transition();
     break;
   case RAMP_LEVEL:
+    Serial.println("RAMP_LEVEL");
 //    move(MAX_SPEED_RIGHT*0.75, MAX_SPEED_LEFT*0.75, 20);
     move(MAX_SPEED_RIGHT/2,MAX_SPEED_LEFT/2,10);
     waitFor(DOWN, 25, dm);
     state->transition();
   case RAMP_DOWN:
-    // Turn at the bottom
     Serial.println("RAMP_DOWN");
+    // Turn at the bottom
     move(MAX_SPEED_RIGHT*0.1,MAX_SPEED_LEFT*0.1,1);
 //      move(0,0,1);
       heading_diff = getHeadingDiff(dm);
@@ -274,7 +275,7 @@ void loop() {
 //  getHeadingDiff(dm);
   switch(state->current) {
     case READY:
-//      state->transition();
+      state->transition();
 //      state->transition();
 //      state->transition();
 //      state->transition();

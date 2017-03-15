@@ -6,10 +6,12 @@
 #include "PitchControl.cpp"
 
 void ramp_searching(DataManager * dm, DeviceState* state) {
+  Serial.println("RAMP_SEARCHING");
   int sensor = 0;
   float ultrasonic_front = dm->getFrontUS();
   switch(state->current) {
   case RAMP_SEARCH:
+    Serial.println("RAMP_SEARCH");
     move(MAX_SPEED_RIGHT*0.75, MAX_SPEED_LEFT*0.75, 10);
     // Serial.println(ultrasonic_front);
     while(!(ultrasonic_front < 70 && ultrasonic_front > 40)) {
@@ -29,6 +31,7 @@ void ramp_searching(DataManager * dm, DeviceState* state) {
     state->transition();
     break;
   case RAMP_TURN:
+    Serial.println("RAMP_TURN");
 ////      move(0,0,1);
 //      move(-1*MAX_SPEED/2, MAX_SPEED/2, 4);
 //      sensor = analogRead(IR_PIN);
@@ -50,9 +53,11 @@ void ramp_searching(DataManager * dm, DeviceState* state) {
     break;
 
   case RAMP_AHEAD:
+    Serial.println("RAMP_AHEAD");
     move(MAX_SPEED_RIGHT, MAX_SPEED_LEFT, 20);
     waitFor(UP, 25, dm);
     delay(500);
+    Serial.println("DONE RAMP");
     state->transition();
     break;
   }

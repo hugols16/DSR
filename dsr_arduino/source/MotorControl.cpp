@@ -60,15 +60,9 @@ void turn(bool dir, float deg, DataManager * dm) {
 
 float getHeadingDiff(DataManager * dm) {
   float currentDeg = 0;
-<<<<<<< HEAD
-  unsigned long int t1 = micros(), t2;
-  delay(2);
-  unsigned long int startTime = t1;
-=======
   unsigned long t1 = micros(), t2;
   delay(2);
   unsigned long startTime = t1;
->>>>>>> 6dd9417c8bc24ebe2a36f4aa6ac4197bad0df63c
 
   while(t1 - startTime < 2500000) {
     t2 = t1;
