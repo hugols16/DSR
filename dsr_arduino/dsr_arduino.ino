@@ -14,6 +14,7 @@
 #include "source/RampSearching.cpp"
 #include "source/PitchControl.cpp"
 #include "source/RampMoving.cpp"
+#include "source/BaseSearching.cpp"
 
 // Create IMU object
 LSM9DS1 imu;
@@ -59,29 +60,44 @@ void setup() {
   // Set state to INIT
   state.init();
 
+  Serial.print("FRONT LEFT RIGHT BACK 25ms\n");
+
   // Move to READY
   state.transition();
 }
 
 void loop() {
+
+  move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 1);
   // Update Sensor Values
-  dm.update();
-  switch(state.current) {
-    case READY:
-      state.transition();
-      break;
-    case RAMP_SEARCH:
-    case RAMP_TURN:
-    case RAMP_AHEAD:
-      ramp_searching();
-      break;
-    case RAMP_UP:
-    case RAMP_LEVEL:
-    case RAMP_DOWN:
-      ramp_moving();
-      break;
-    case SEARCHING:
-      break;
-  }
-  delay(100);
+  Serial.print(dm.getFrontUS());
+  delay(10);
+  Serial.print(" ");
+  Serial.print(dm.getLeftUS());
+  Serial.print(" ");
+  delay(10);
+  Serial.print(dm.getRightUS());
+  Serial.print(" ");
+  delay(10);
+  Serial.print(dm.getBackUS());
+  Serial.print("\n");
+  
+//  switch(state.current) {
+//    case READY:
+//      state.transition();
+//      break;
+//    case RAMP_SEARCH:
+//    case RAMP_TURN:
+//    case RAMP_AHEAD:
+//      ramp_searching();
+//      break;
+//    case RAMP_UP:
+//    case RAMP_LEVEL:
+//    case RAMP_DOWN:
+//      ramp_moving();
+//      break;
+//    case SEARCHING:
+//      break;
+//  }
+  delay(40);
 }
