@@ -41,7 +41,7 @@ void turn(bool dir, float deg) {
   float currentDeg = 0;
   unsigned long t1 = micros(), t2;
 //  float v1 = 0, v2 = 0, v3 = 0;
-  float speedRatio = 0.5;
+  float speedRatio = 0.3;
   move(dir ? MAX_SPEED_RIGHT*speedRatio : -MAX_SPEED_RIGHT*speedRatio,  dir ? -MAX_SPEED_LEFT*speedRatio : MAX_SPEED_LEFT*speedRatio, 5);
 
   while(abs(currentDeg - deg) > 4.0) {
