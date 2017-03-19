@@ -39,21 +39,21 @@ private:
 
 public:
   DataManager() {
-    // usFront = sensorReadingFront();
-    // usLeft = sensorReadingLeft();
-    // usRight = sensorReadingRight();
-    // usBack = sensorReadingBack();
+    usFront = sensorReadingFront();
+    usLeft = sensorReadingLeft();
+    usRight = sensorReadingRight();
+    usBack = sensorReadingBack();
   }
 
-  // int getFrontUS() { return usFront; }
-  // int getLeftUS() { return usLeft; }
-  // int getRightUS() { return usRight; }
-  // int getBackUS() { return usBack; }
+  int getFrontUS() { return usFront; }
+  int getLeftUS() { return usLeft; }
+  int getRightUS() { return usRight; }
+  int getBackUS() { return usBack; }
 
-  int getFrontUS() { return sensorReadingFront(); }
-  int getLeftUS() { return sensorReadingLeft(); }
-  int getRightUS() { return sensorReadingRight(); }
-  int getBackUS() { return sensorReadingBack(); }
+  // int getFrontUS() { return sensorReadingFront(); }
+  // int getLeftUS() { return sensorReadingLeft(); }
+  // int getRightUS() { return sensorReadingRight(); }
+  // int getBackUS() { return sensorReadingBack(); }
 
   float getAccX() { return aX; }
   float getAccY() { return aY; }
