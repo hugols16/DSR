@@ -42,13 +42,9 @@ private:
 public:
   DataManager() {
     usFront = sensorReadingFront();
-    delay(5);
     usLeft = sensorReadingLeft();
-    delay(5);
     usRight = sensorReadingRight();
-    delay(5);
     usBack = sensorReadingBack();
-    delay(5);
   }
 
   int getFrontUS() { return usFront; }
@@ -143,20 +139,29 @@ public:
   }
 
   void updateLeftUS() {
+    // int leftReading = (int) sensorReadingLeft();
+    // // int reading = updateUS(leftReading, leftMem);
+    // int reading = leftReading;
+    // if(reading != 0) {
+    //   usLeft = reading;
+    // }
     int leftReading = (int) sensorReadingLeft();
-    int reading = updateUS(leftReading, leftMem);
 
-    if(reading != 0) {
-      usLeft = reading;
+    if(leftReading != 0) {
+      usLeft = leftReading;
     }
   }
 
   void updateRightUS() {
+    // int rightReading = (int) sensorReadingRight();
+    // int reading = updateUS(rightReading, rightMem);
+    // if(reading != 0) {
+    //   usRight = reading;
+    // }
     int rightReading = (int) sensorReadingRight();
-    int reading = updateUS(rightReading, rightMem);
 
-    if(reading != 0) {
-      usRight = reading;
+    if(rightReading != 0) {
+      usRight = rightReading;
     }
   }
 

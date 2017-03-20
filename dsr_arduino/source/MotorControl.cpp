@@ -26,10 +26,13 @@ void move(int speedRight, int speedLeft, int ramp_step) {
   if (diffRight == 0 && diffLeft == 0) {
     return;
   }
-  for (int i=1; i <= ramp_step; i++) {
+  motorRight.drive(motorRight.getCurrentSpeed() + diffRight/ramp_step);
+  motorLeft.drive(motorLeft.getCurrentSpeed() + diffLeft/ramp_step);
+  
+  for (int i=2; i <= ramp_step; i++) {
+      delay(10); //10 ms delay
       motorRight.drive(motorRight.getCurrentSpeed() + diffRight*i/ramp_step);
       motorLeft.drive(motorLeft.getCurrentSpeed() + diffLeft*i/ramp_step);
-      delay(10); //10 ms delay
   }
   motorRight.setCurrentSpeed(diffRight);
   motorLeft.setCurrentSpeed(diffLeft);

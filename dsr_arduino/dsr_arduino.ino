@@ -15,18 +15,21 @@
 #include "source/PitchControl.cpp"
 #include "source/RampMoving.cpp"
 #include "source/BaseSearching.cpp"
+#include "Source/HeadingControl.cpp"
 
 // Create IMU object
 LSM9DS1 imu;
-
+//
 // Create Global State Machine
 DeviceState state;
-
+//
 // Create Global Data Manager
 DataManager dm;
+//HeadingReader hr;
 
 void setup() {
-
+  Serial.begin(9600);
+  
   // Setting up the imu
   imu.settings.device.commInterface = IMU_MODE_I2C; // Set mode to I2C
   imu.settings.device.mAddress = LSM9DS1_M; // Set mag address to 0x1E
@@ -34,7 +37,7 @@ void setup() {
   imu.settings.accel.scale = 4; // Set accel range to +/-4g
   imu.settings.gyro.scale = 500; // Set gyro range to +/-720dps
   imu.settings.mag.scale = 2; // Set mag range to +/-2Gs
-
+//
   if (!imu.begin()) {
     Serial.println("Failed to communicate with LSM9DS1.");
     Serial.println("Looping to infinity.");
@@ -50,31 +53,32 @@ void setup() {
   digitalWrite(TRIG_PIN_LEFT, LOW);
   pinMode(TRIG_PIN_BACK, OUTPUT);
   digitalWrite(TRIG_PIN_BACK, LOW);
-
+//
   delay(100);
-  // Set IMU
+//  // Set IMU
   dm.setDataManagerIMU(imu);
-
-  Serial.begin(9600);
-  Serial.println("FRONT BACK RIGHT");
+//
   // Set state to INIT
   state.init();
-
+//
+//  hr.heading = 0;
+//
   // Move to READY
   state.transition();
 }
 
 void loop() {
   dm.update();
+//
   switch(state.current) {
     case READY:
 //    Serial.print(dm.getFrontUS());
 //    Serial.print(" ");
 //    Serial.print(dm.getBackUS());
 //    Serial.print(" ");
-//    Serial.print(dm.getLeftUS());
-//    Serial.print(" ");
 //    Serial.print(dm.getRightUS());
+//    Serial.print(" ");
+//    Serial.print(dm.getLeftUS());
 //    Serial.print("\n");
       state.transition();
       state.transition();

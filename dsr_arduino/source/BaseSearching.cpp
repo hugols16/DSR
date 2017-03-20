@@ -8,10 +8,10 @@ class UsFilter {
     bool usRight, usLeft;
     int rightCount, leftCount;
     int oldRight, oldLeft;
-    int usNoise, usSensitivity;
+    int usNoise, usSensitivity, usMaxDist;
 
   public:
-    UsFilter(bool right=false, bool left=false, int sensitivity=4, int noise=5) {
+    UsFilter(bool right=false, bool left=false, int sensitivity=3, int noise=2, int max_dist=50) {
       // US flags
       usRight = right;
       usLeft = left;
@@ -25,14 +25,18 @@ class UsFilter {
       usNoise = noise;
       // Algorithm sensitivity
       usSensitivity = sensitivity;
+
+      // Max Allowable Distance
+      usMaxDist = max_dist;
     }
 
     int findBase(int rightDist, int leftDist) {
       //Right US
-      if (usRight) {
+      if (usRight && rightDist && rightDist < usMaxDist) {
         // Start new cycle
         if (rightCount == 0) {
           oldRight = rightDist;
+          rightCount++;
         } else {
           if (abs(rightDist - oldRight) > usNoise) {
             rightCount = 1;
@@ -41,15 +45,22 @@ class UsFilter {
             rightCount++;
             // Get average of the values
             oldRight = (oldRight*(rightCount-1) + rightDist)/rightCount;
-            if (rightCount == usSensitivity) return RIGHT;
+            if (rightCount == usSensitivity) {
+              Serial.println(rightCount);
+              Serial.println("FOUND RIGHT");
+              return LEFT;
+            }
           }
         }
+      } else {
+        rightCount = 0;
       }
       //Left US
-      if (usLeft) {
+      if (usLeft && leftDist && leftDist < usMaxDist) {
         // Start new cycle
         if (leftCount == 0) {
           oldLeft = leftDist;
+          leftCount++;
         } else {
           if (abs(leftDist - oldLeft) > usNoise) {
             leftCount = 1;
@@ -58,10 +69,31 @@ class UsFilter {
             leftCount++;
             // Get average of the values
             oldLeft = (oldLeft*(leftCount-1) + leftDist)/leftCount;
-            if (leftCount == usSensitivity) return LEFT;
+            if (leftCount == usSensitivity) {
+              Serial.println(leftCount);
+              Serial.println("FOUND LEFT");
+              return RIGHT;
+            }
           }
         }
+      } else {
+        leftCount = 0;
       }
+      Serial.print(oldRight);
+      Serial.print(" ");
+      Serial.print(rightDist);
+      Serial.print(" ");
+      Serial.print(rightCount);
+      Serial.print("\n");
+
+      Serial.print(oldLeft);
+      Serial.print(" ");
+      Serial.print(leftDist);
+      Serial.print(" ");
+      Serial.print(leftCount);
+      Serial.print("\n");
+
+      Serial.println("+++++++++++");
       return NOT_FOUND;
     }
 };
@@ -87,11 +119,12 @@ int moveSearchFront(int targetDist) {
   DataManager dm;
   UsFilter* filter = new UsFilter(true, false);
   int found = NOT_FOUND;
-  move(-MAX_SPEED_RIGHT/2, -MAX_SPEED_LEFT/2, 20);
+  move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 20);
   HeadingReader hr;
   hr.heading = 0;
   float backDist = 0, frontDist = 0, rightDist = 0;
 
+  // while(1) {
   while(frontDist < targetDist) {
     dm.updateBackUS();
     delay(2);
@@ -110,10 +143,11 @@ int moveSearchFront(int targetDist) {
       return found;
     }
 
-    if (backDist < 40 && backDist != 0) {
-      Serial.println("Forward");
-      return FORWARD;
-    }
+    // if (backDist < 40 && backDist != 0) {
+    //   Serial.println("Forward");
+    //   return FORWARD;
+    // }
+    // delay(60);
     hr.update(5);
   }
   turn(LEFT, 90 - (int) hr.heading);
@@ -125,22 +159,15 @@ int moveOneThird() {
   DataManager dm;
   UsFilter* filter = new UsFilter(true, true);
   int found = NOT_FOUND;
-  move(-MAX_SPEED_RIGHT/2, -MAX_SPEED_LEFT/2, 1);
+  move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 1);
   HeadingReader hr;
   hr.heading = 0;
 
   float frontDist = 0, rightDist = 0, leftDist = 0, backDist = 0;
   bool passed_mid = false;
-
-  // for(int i = 0; i < 10; i++) {
-  //   delay(5);
-  //   dm.updateRightUS();
-  //   delay(5);
-  //   dm.updateLeftUS();
-  //   delay(40);
-  // }
   
   // Split middle
+  hr.update(10);
   while(frontDist < 100 || (passed_mid && backDist > 20)) {
     dm.updateBackUS();
     delay(5);
@@ -173,13 +200,11 @@ int moveOneThird() {
     hr.update(5);
   }
 
-  Serial.println(backDist);
   turn(RIGHT, 90 + (int) hr.heading);
-
+  move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 1);
   dm.updateBackUS();
   backDist = dm.getBackUS();
   hr.heading = 0;
-  Serial.println(backDist);
 
   // Move parallel to the wall
   while(!(backDist < 70 && backDist > 40)) {
@@ -193,6 +218,7 @@ int moveOneThird() {
     hr.update(6);
   }
   turn(RIGHT, 90 - (int) hr.heading);
+  move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 1);
   dm.updateBackUS();
   delay(2);
   dm.updateLeftUS();
@@ -236,9 +262,11 @@ int moveOneThird() {
 }
 
 void searchForBase() {
+  Serial.println("Searching");
   DataManager dm;
   DeviceState state;
-  int found = moveSearchFront(100);
+  int found;
+  found = moveSearchFront(90);
   if (found != NOT_FOUND) {
     state.transition();
     driveToBase(found);
