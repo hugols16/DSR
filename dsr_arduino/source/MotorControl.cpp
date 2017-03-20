@@ -40,7 +40,10 @@ void turn(bool dir, float deg) {
   DataManager dm;
   float currentDeg = 0;
   unsigned long t1 = micros(), t2;
-//  float v1 = 0, v2 = 0, v3 = 0;
+
+  move(0,0,1);
+  delay(200);
+
   float speedRatio = 0.3;
   move(dir ? MAX_SPEED_RIGHT*speedRatio : -MAX_SPEED_RIGHT*speedRatio,  dir ? -MAX_SPEED_LEFT*speedRatio : MAX_SPEED_LEFT*speedRatio, 5);
 
@@ -48,10 +51,6 @@ void turn(bool dir, float deg) {
     t2 = t1;
     t1 = micros();
     dm.updateGyro();
-//    v3 = v2;
-//    v2 = v1;
-//    v1 = dm.getGyroZ();
-//    float vel =  v1 * 0.4 + 0.3 * v2 + 0.3 * v3;
     currentDeg += (dm.getGyroZ() * (t1 - t2) * 0.000001) * (dir ? 1.0 : -1.0);
     delay(5);
   }
@@ -77,7 +76,7 @@ float getHeadingDiff() {
   return currentDeg;
 }
 
-void moveDist(int targetDist) {
+void moveDist(float targetDist) {
   DataManager dm;
 
   float dist = 0, vel = 0, acc;
@@ -91,7 +90,10 @@ void moveDist(int targetDist) {
     dm.updateAccel();
     vel += dm.getAccX() * (t1 - t2) * 0.000001;
     dist += vel * (t1 - t2) * 0.000001;
-
+    Serial.print(dm.getAccX());
+    // Serial.print(' ');
+    // Serial.print(vel);
+    Serial.print('\n');
     delay(5);
   }
 
