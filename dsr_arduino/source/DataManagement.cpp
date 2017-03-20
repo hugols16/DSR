@@ -11,13 +11,15 @@ const int sensitivity = 3;
 class DataManager {
 private:
   static int usFront;
-  static int frontDiff;
   static int usLeft;
-  static int leftDiff;
   static int usRight;
-  static int rightDiff;
   static int usBack;
-  static int backDiff;
+
+  const float weights[4] = {3, 9, 15, 25};
+  const float weightSum = 52;
+
+  static float leftMem[4];
+  static float rightMem[4];
 
   static LSM9DS1 imu_m;
 
@@ -142,68 +144,66 @@ public:
 
   void updateLeftUS() {
     int leftReading = (int) sensorReadingLeft();
-    if (leftReading == 0) return;
-    if (leftReading != usLeft) {
-      leftDiff++;
-    } else { leftDiff = 0; }
-    if ( leftDiff >= sensitivity ) {
-      usLeft = leftReading;
-      leftDiff = 0;
+    int reading = updateUS(leftReading, leftMem);
+
+    if(reading != 0) {
+      usLeft = reading;
     }
   }
 
   void updateRightUS() {
     int rightReading = (int) sensorReadingRight();
-    if (rightReading == 0) return;
-    if (rightReading != usRight) {
-      rightDiff++;
-    } else {
-      rightDiff = 0;
-    }
-    if ( rightDiff >= sensitivity ) {
-      usRight = rightReading;
-      rightDiff = 0;
+    int reading = updateUS(rightReading, rightMem);
+
+    if(reading != 0) {
+      usRight = reading;
     }
   }
 
   void updateFrontUS() {
     int frontReading = (int) sensorReadingFront();
-    if (frontReading == 0) return;
-    if ( frontReading != usFront) {
-      frontDiff++;
-    } else {
-      frontDiff = 0;
-    }
-    if( frontDiff >= sensitivity ) {
+
+    if(frontReading != 0) {
       usFront = frontReading;
-      frontDiff = 0;
     }
   }
 
   void updateBackUS() {
     int backReading = (int) sensorReadingBack();
-    if (backReading == 0) return;
-    if ( backReading != usBack) {
-      backDiff++;
-    } else {
-      backDiff = 0;
-    }
-    if( backDiff >= sensitivity ) {
+
+    if(backReading != 0) {
       usBack = backReading;
-      backDiff = 0;
     }
+  }
+
+  int updateUS(int reading, float mem[4]) {
+    if(reading == 0) {
+      return 0;
+    }
+
+    mem[3] = mem[2];
+    mem[2] = mem[1];
+    mem[1] = mem[0];
+    mem[0] = reading;
+
+    reading = (int) ((mem[3] * weights[3] \
+                    + mem[2] * weights[2] \
+                    + mem[1] * weights[1] \
+                    + mem[0] * weights[0]) / weightSum);
+
+    if(reading > 70) {
+      return 70;
+    }
+
+    return reading;
   }
 
 };
 
 int DataManager::usFront = 0;
-int DataManager::frontDiff = 0;
 int DataManager::usLeft = 0;
-int DataManager::leftDiff = 0;
 int DataManager::usRight = 0;
-int DataManager::rightDiff = 0;
 int DataManager::usBack = 0;
-int DataManager::backDiff = 0;
 
 float DataManager::aX = 0;
 float DataManager::aY = 0;
@@ -217,6 +217,9 @@ float DataManager::mX = 0;
 float DataManager::mY = 0;
 float DataManager::mZ = 0;
 float DataManager::heading = 0;
+
+float DataManager::leftMem[4] = {70, 70, 70, 70};
+float DataManager::rightMem[4] = {70, 70, 70, 70};
 
 int DataManager::ir = 0;
 
