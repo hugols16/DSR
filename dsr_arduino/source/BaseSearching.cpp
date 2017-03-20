@@ -2,6 +2,69 @@
 #include "MotorControl.cpp"
 #include "DataManagement.cpp"
 
+class UsFilter {
+  private:
+    bool usRight, usLeft;
+    int rightCount, leftCount;
+    int oldRight, oldLeft;
+    int usNoise, usSensitivity;
+
+  public:
+    UsFilter(bool right=false, bool left=false, int sensitivity=4, int noise=5) {
+      // US flags
+      usRight = right;
+      usLeft = left;
+      // US counts
+      rightCount = 0;
+      leftCount = 0;
+      // Keeping track of old values
+      oldRight = 0;
+      oldLeft = 0;
+      // Allowable noise
+      usNoise = noise;
+      // Algorithm sensitivity
+      usSensitivity = sensitivity;
+    }
+
+    int findBase(int rightDist, int leftDist) {
+      //Right US
+      if (usRight) {
+        // Start new cycle
+        if (rightCount == 0) {
+          oldRight = rightDist;
+        } else {
+          if (abs(rightDist - oldRight) > usNoise) {
+            rightCount = 1;
+            oldRight = rightDist;
+          } else {
+            rightCount++;
+            // Get average of the values
+            oldRight = (oldRight*(rightCount-1) + rightDist)/rightCount;
+            if (rightCount == usSensitivity) return RIGHT;
+          }
+        }
+      }
+      //Left US
+      if (usLeft) {
+        // Start new cycle
+        if (leftCount == 0) {
+          oldLeft = leftDist;
+        } else {
+          if (abs(leftDist - oldLeft) > usNoise) {
+            leftCount = 1;
+            oldLeft = leftDist;
+          } else {
+            leftCount++;
+            // Get average of the values
+            oldLeft = (oldLeft*(leftCount-1) + leftDist)/leftCount;
+            if (leftCount == usSensitivity) return LEFT;
+          }
+        }
+      }
+      return NOT_FOUND;
+    }
+};
+
 void driveToBase(int found){
   Serial.println("FOUND!");
   DeviceState state;
@@ -18,6 +81,8 @@ void driveToBase(int found){
 
 int moveSearchFront(int targetDist) {
   DataManager dm;
+  UsFilter* filter = new UsFilter(true, false);
+  int found = NOT_FOUND;
   move(-MAX_SPEED_RIGHT/2, -MAX_SPEED_LEFT/2, 20);
   float backDist = 0, frontDist = 0, rightDist = 0;
 
@@ -32,9 +97,11 @@ int moveSearchFront(int targetDist) {
     frontDist = dm.getFrontUS();
     rightDist = dm.getRightUS();
 
-    if (rightDist < 60 && rightDist != 0) {
-      Serial.println("Right");
-      return LEFT;
+    // Use base algorithm
+    found = filter->findBase(rightDist, -1);
+
+    if (found != NOT_FOUND) {
+      return found;
     }
 
     if (backDist < 40 && backDist != 0) {
@@ -50,6 +117,8 @@ int moveSearchFront(int targetDist) {
 
 int moveOneThird() {
   DataManager dm;
+  UsFilter* filter = new UsFilter(true, true);
+  int found = NOT_FOUND;
   move(-MAX_SPEED_RIGHT/2, -MAX_SPEED_LEFT/2, 1);
   float frontDist = 0, rightDist = 0, leftDist = 0, backDist = 0;
   bool passed_mid = false;
@@ -69,18 +138,17 @@ int moveOneThird() {
     rightDist = dm.getRightUS();
     leftDist = dm.getLeftUS();
 
+    // Use base algorithm
+    found = filter->findBase(rightDist, leftDist);
+
+    if (found != NOT_FOUND) {
+      return found;
+    }
+
     if (frontDist > 100 && frontDist != 0) {
       passed_mid = true;
     }
-    if (rightDist < 60 && rightDist != 0) {
-      Serial.println("Right");
-      return LEFT;
-    }
 
-    if (leftDist < 60 && leftDist != 0) {
-      Serial.println("Left");
-      return RIGHT;
-    }
     if (backDist < 40 && backDist != 0 && !passed_mid) {
       Serial.println("Forward");
       return FORWARD;
@@ -94,6 +162,7 @@ int moveOneThird() {
   backDist = dm.getBackUS();
   move(-MAX_SPEED_RIGHT/2, -MAX_SPEED_LEFT/2, 1);
   Serial.println(backDist);
+
   // Move parallel to the wall
   while(!(backDist < 70 && backDist > 40)) {
     dm.updateBackUS();
@@ -106,7 +175,6 @@ int moveOneThird() {
     delay(60);
   }
 
-  Serial.println("Turning");
   turn(RIGHT, 90);
   dm.updateBackUS();
   delay(2);
@@ -116,6 +184,8 @@ int moveOneThird() {
   passed_mid = false;
   move(-MAX_SPEED_RIGHT/2, -MAX_SPEED_LEFT/2, 1);
 
+  delete filter;
+  filter = new UsFilter(false, true);
   // Check again for edge cases
   while(frontDist < 100 or (passed_mid && backDist > 20)) {
     dm.updateBackUS();
@@ -132,10 +202,12 @@ int moveOneThird() {
       passed_mid = true;
     }
 
-    if (leftDist < 60 && leftDist != 0) {
-      Serial.println("Left");
-      return RIGHT;
+    found = filter->findBase(-1, leftDist);
+
+    if (found != NOT_FOUND) {
+      return found;
     }
+
     if (backDist < 40 && backDist != 0 && !passed_mid) {
       Serial.println("Forward");
       return FORWARD;

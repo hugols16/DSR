@@ -40,9 +40,13 @@ private:
 public:
   DataManager() {
     usFront = sensorReadingFront();
+    delay(5);
     usLeft = sensorReadingLeft();
+    delay(5);
     usRight = sensorReadingRight();
+    delay(5);
     usBack = sensorReadingBack();
+    delay(5);
   }
 
   int getFrontUS() { return usFront; }
