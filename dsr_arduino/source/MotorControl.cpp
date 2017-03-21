@@ -62,10 +62,15 @@ void turn(bool dir, float deg) {
     count++;
     if(count % 100 == 0) {
       if(abs(prevDeg - currentDeg) < 10) {
-        move(-MAX_SPEED_RIGHT*0.75, -MAX_SPEED_LEFT*0.75, 1);
+        if(count % 200 == 0) {
+          move(-MAX_SPEED_RIGHT*0.75, -MAX_SPEED_LEFT*0.75, 1);
+        } else {
+          move(MAX_SPEED_RIGHT*0.75, MAX_SPEED_LEFT*0.75, 1);
+        }      
         delay(200);
         move(dir ? MAX_SPEED_RIGHT*speedRatio : -MAX_SPEED_RIGHT*speedRatio,  dir ? -MAX_SPEED_LEFT*speedRatio : MAX_SPEED_LEFT*speedRatio, 5);
       }
+      t1 = micros();
       prevDeg = currentDeg;
     }
   }

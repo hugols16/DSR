@@ -40,7 +40,8 @@
 #define TURN_TOLERANCE 0.1
 #define RIGHT 0
 #define LEFT 1
-#define FORWARD 2
+#define FRONT 2
+#define BACK 3
 #define NOT_FOUND 3
 #define UP 0
 #define DOWN 1

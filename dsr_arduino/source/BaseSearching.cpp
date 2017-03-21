@@ -98,11 +98,55 @@ class UsFilter {
     }
 };
 
+int checkSides(HeadingReader *hr, bool right=false, bool left=false, int iterations=6, int range=60, int sensitivity=1.05, int frontTargetDist=999) {
+  DataManager dm;
+  int us_right = 0;
+  int us_left = 0;
+  int us_front = 0;
+  int us_back = 0;
+  int mean_right = 0;
+  int mean_left = 0;
+  for(int i=0; i<iterations;i++) {
+    
+    dm.updateFrontUS();
+    us_front = dm.getFrontUS();
+    Serial.print(frontTargetDist);
+    Serial.print(" ");
+    Serial.print(us_front);
+    Serial.print("\n");
+    if (us_front > frontTargetDist) return FRONT;
+    Serial.println("NOT FRONT");
+    // dm.updateBackUS();
+    // us_back = dm.getBackUS();
+    // if (us_back > backTargetDist) return BACK;
+    if (right) {
+      dm.updateRightUS();
+      us_right = dm.getRightUS();
+      if (us_right == 0 || us_right > range*sensitivity) right = false;
+    }
+    if (left) {
+      dm.updateLeftUS();
+      us_left = dm.getLeftUS();
+      if (us_left == 0 || us_left > range*sensitivity) left = false;
+    }
+    mean_right += us_right/iterations;
+    mean_left += us_left/iterations;
+    hr->update(3);
+  }
+  if (right && mean_right < range) return LEFT;
+  if (left && mean_left < range) return RIGHT;
+  // Serial.print(mean_right);
+  // Serial.print(" ");
+  // Serial.print(mean_left);
+  // Serial.print("\n");
+  return NOT_FOUND;
+}
+
 void driveToBase(int found){
   HeadingReader hr;
   Serial.println("FOUND!");
   DeviceState state;
-  if(found != FORWARD){
+  if(found != FRONT){
     delay(200);
     turn(found, 90);
   }
@@ -124,31 +168,31 @@ int moveSearchFront(int targetDist) {
   hr.heading = 0;
   float backDist = 0, frontDist = 0, rightDist = 0;
 
-  // while(1) {
-  while(frontDist < targetDist) {
-    dm.updateBackUS();
-    delay(2);
+  // So we don't see the ramp
+  while(frontDist < 30) {
     dm.updateFrontUS();
-    delay(2);
-    dm.updateRightUS();
-
-    backDist = dm.getBackUS();
     frontDist = dm.getFrontUS();
-    rightDist = dm.getRightUS();
+    hr.update(4);
+  }
+  // while(1) {
+  while(1) {
+    // dm.updateBackUS();
+    // delay(2);
+    // dm.updateFrontUS();
+    // delay(2);
+    // dm.updateRightUS();
+
+    // backDist = dm.getBackUS();
+    // frontDist = dm.getFrontUS();
+    // rightDist = dm.getRightUS();
 
     // Use base algorithm
-    found = filter->findBase(rightDist, -1);
+    found = checkSides(&hr, true, false, 4, 40, 1.1, targetDist);
+    // found = filter->findBase(rightDist, -1);
+    if (found == FRONT) break;
 
-    if (found != NOT_FOUND) {
-      return found;
-    }
+    if (found != NOT_FOUND) return found;
 
-    // if (backDist < 40 && backDist != 0) {
-    //   Serial.println("Forward");
-    //   return FORWARD;
-    // }
-    // delay(60);
-    hr.update(3);
   }
   turn(LEFT, 90 - (int) hr.heading);
   Serial.println("Not Found");
@@ -168,95 +212,97 @@ int moveOneThird() {
   
   // Split middle
   hr.update(10);
-  while(frontDist < 100 || (passed_mid && backDist && backDist > 20)) {
-    dm.updateBackUS();
-    delay(5);
-    dm.updateFrontUS();
-    delay(5);
-    dm.updateRightUS();
-    delay(5);
-    dm.updateLeftUS();
+  while(1) {
+    // dm.updateBackUS();
+    // // delay(5);
+    // dm.updateFrontUS();
+    // delay(5);
+    // dm.updateRightUS();
+    // delay(5);
+    // dm.updateLeftUS();
 
-    backDist = dm.getBackUS();
-    frontDist = dm.getFrontUS();
-    rightDist = dm.getRightUS();
-    leftDist = dm.getLeftUS();
+    // backDist = dm.getBackUS();
+    // frontDist = dm.getFrontUS();
+    // rightDist = dm.getRightUS();
+    // leftDist = dm.getLeftUS();
 
     // Use base algorithm
-    found = filter->findBase(rightDist, leftDist);
+    // found = filter->findBase(rightDist, leftDist);
+    found = checkSides(&hr, true, true);
 
     if (found != NOT_FOUND) {
       return found;
     }
 
-    if (frontDist > 100 && frontDist != 0) {
-      passed_mid = true;
-    }
+    // if (frontDist > 100 && frontDist != 0) {
+    //   passed_mid = true;
+    // }
 
-    if (backDist < 40 && backDist != 0 && !passed_mid) {
-      Serial.println("Forward");
-      return FORWARD;
-    }
-    hr.update(3);
+    // if (backDist < 40 && backDist != 0 && !passed_mid) {
+    //   Serial.println("Forward");
+    //   return FORWARD;
+    // }
+    // hr.update(3);
   }
 
-  turn(RIGHT, 90 + (int) hr.heading);
-  move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 1);
-  dm.updateBackUS();
-  backDist = dm.getBackUS();
-  hr.heading = 0;
+  // turn(RIGHT, 90 + (int) hr.heading);
+  // move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 1);
+  // dm.updateBackUS();
+  // backDist = dm.getBackUS();
+  // hr.heading = 0;
 
-  // Move parallel to the wall
-  while(!(backDist < 70 && backDist > 40)) {
-    hr.update(6);
-    dm.updateBackUS();
-    backDist = dm.getBackUS();
-  }
-  while(backDist > 30) {
-    dm.updateBackUS();
-    backDist = dm.getBackUS();
-    hr.update(6);
-  }
-  turn(RIGHT, 90 - (int) hr.heading);
-  move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 1);
-  dm.updateBackUS();
-  delay(2);
-  dm.updateLeftUS();
-  delay(2);
-  dm.updateFrontUS();
-  passed_mid = false;
+  // // Move parallel to the wall
+  // while(!(backDist < 70 && backDist > 40)) {
+  //   hr.update(6);
+  //   dm.updateBackUS();
+  //   backDist = dm.getBackUS();
+  // }
+  // while(backDist > 30) {
+  //   dm.updateBackUS();
+  //   backDist = dm.getBackUS();
+  //   hr.update(6);
+  // }
+  // turn(RIGHT, 90 - (int) hr.heading);
+  // move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 1);
+  // dm.updateBackUS();
+  // delay(2);
+  // dm.updateLeftUS();
+  // delay(2);
+  // dm.updateFrontUS();
+  // passed_mid = false;
 
-  hr.heading = 0;
+  // hr.heading = 0;
 
-  // Check again for edge cases
-  while(frontDist < 100 || (passed_mid && backDist && backDist > 20)) {
-    dm.updateBackUS();
-    delay(2);
-    dm.updateFrontUS();
-    delay(2);
-    dm.updateLeftUS();
+  // // Check again for edge cases
+  // while(frontDist < 100 || (passed_mid && backDist && backDist > 20)) {
+  //   dm.updateBackUS();
+  //   delay(2);
+  //   dm.updateFrontUS();
+  //   // delay(2);
+  //   // dm.updateLeftUS();
 
-    backDist = dm.getBackUS();
-    frontDist = dm.getFrontUS();
-    leftDist = dm.getLeftUS();
+  //   backDist = dm.getBackUS();
+  //   frontDist = dm.getFrontUS();
+  //   // leftDist = dm.getLeftUS();
 
-    if (frontDist > 100 && frontDist != 0) {
-      passed_mid = true;
-    }
+  //   if (frontDist > 100 && frontDist != 0) {
+  //     passed_mid = true;
+  //   }
 
-    found = filter->findBase(-1, leftDist);
+  //   // found = filter->findBase(-1, leftDist);
+  //   found = checkSides(&hr, false, true);
 
-    if (found != NOT_FOUND) {
-      return found;
-    }
-    if (backDist < 40 && backDist != 0 && !passed_mid) {
-      Serial.println("Forward");
-      return FORWARD;
-    }
-    delay(50);
-    hr.update(3);
-  }
-  return NOT_FOUND;
+  //   if (found != NOT_FOUND) {
+  //     return found;
+  //   }
+  //   if (backDist < 40 && backDist != 0 && !passed_mid) {
+  //     Serial.println("Forward");
+  //     return FORWARD;
+  //   }
+  //   // delay(50);
+  //   // hr.update(3);
+  // }
+  // return NOT_FOUND;
 }
 
 void searchForBase() {

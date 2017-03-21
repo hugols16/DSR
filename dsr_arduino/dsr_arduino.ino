@@ -81,12 +81,12 @@ void loop() {
 //    Serial.print(dm.getLeftUS());
 //    Serial.print("\n");
       state.transition();
-      state.transition();
-      state.transition();
-      state.transition();
-      state.transition();
-      state.transition();
-      state.transition();
+//      state.transition();
+//      state.transition();
+//      state.transition();
+//      state.transition();
+//      state.transition();
+//      state.transition();
       break;
     case RAMP_SEARCH:
     case RAMP_TURN:
