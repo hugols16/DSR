@@ -98,27 +98,24 @@ class UsFilter {
     }
 };
 
-int checkSides(HeadingReader *hr, bool right=false, bool left=false, int iterations=6, int range=60, int sensitivity=1.05, int frontTargetDist=999) {
+int checkSides(HeadingReader *hr, bool right=false, bool left=false, float iterations=5, int range=60, int sensitivity=1.05, int frontTargetDist=999) {
   DataManager dm;
   int us_right = 0;
   int us_left = 0;
   int us_front = 0;
   int us_back = 0;
-  int mean_right = 0;
-  int mean_left = 0;
-  for(int i=0; i<iterations;i++) {
+  float mean_right = 0;
+  float mean_left = 0;
+  for(int i=0; i<iterations; i++) {
     
     dm.updateFrontUS();
     us_front = dm.getFrontUS();
-    Serial.print(frontTargetDist);
-    Serial.print(" ");
-    Serial.print(us_front);
-    Serial.print("\n");
+    // Serial.print(frontTargetDist);
+    // Serial.print(" ");
+    // Serial.print(us_front);
+    // Serial.print("\n");
     if (us_front > frontTargetDist) return FRONT;
-    Serial.println("NOT FRONT");
-    // dm.updateBackUS();
-    // us_back = dm.getBackUS();
-    // if (us_back > backTargetDist) return BACK;
+
     if (right) {
       dm.updateRightUS();
       us_right = dm.getRightUS();
@@ -131,7 +128,7 @@ int checkSides(HeadingReader *hr, bool right=false, bool left=false, int iterati
     }
     mean_right += us_right/iterations;
     mean_left += us_left/iterations;
-    hr->update(3);
+    hr->update(5);
   }
   if (right && mean_right < range) return LEFT;
   if (left && mean_left < range) return RIGHT;
@@ -187,7 +184,7 @@ int moveSearchFront(int targetDist) {
     // rightDist = dm.getRightUS();
 
     // Use base algorithm
-    found = checkSides(&hr, true, false, 4, 40, 1.1, targetDist);
+    found = checkSides(&hr, true, false, 4.0, 40, 1.1, targetDist);
     // found = filter->findBase(rightDist, -1);
     if (found == FRONT) break;
 
@@ -211,7 +208,7 @@ int moveOneThird() {
   bool passed_mid = false;
   
   // Split middle
-  hr.update(10);
+  hr.update(50);
   while(1) {
     // dm.updateBackUS();
     // // delay(5);
@@ -310,7 +307,7 @@ void searchForBase() {
   DataManager dm;
   DeviceState state;
   int found;
-  found = moveSearchFront(90);
+  found = moveSearchFront(115);
   if (found != NOT_FOUND) {
     state.transition();
     driveToBase(found);

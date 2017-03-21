@@ -20,12 +20,12 @@ void ramp_searching() {
     while(!(ultrasonic_front < 60 && ultrasonic_front > 40)) {
       dm.updateFrontUS();
       ultrasonic_front = dm.getFrontUS();
-      hr.updateForward(6);
+      hr.updateForward(3);
     }
     while(ultrasonic_front > RAMP_DIST_X) {
       dm.updateFrontUS();
       ultrasonic_front = dm.getFrontUS();
-      hr.updateForward(6);
+      hr.updateForward(3);
     }
     state.transition();
     break;
