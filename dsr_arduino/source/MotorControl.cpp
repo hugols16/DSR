@@ -28,7 +28,7 @@ void move(int speedRight, int speedLeft, int ramp_step) {
   }
   motorRight.drive(motorRight.getCurrentSpeed() + diffRight/ramp_step);
   motorLeft.drive(motorLeft.getCurrentSpeed() + diffLeft/ramp_step);
-  
+
   for (int i=2; i <= ramp_step; i++) {
       delay(10); //10 ms delay
       motorRight.drive(motorRight.getCurrentSpeed() + diffRight*i/ramp_step);
@@ -50,12 +50,23 @@ void turn(bool dir, float deg) {
   float speedRatio = 0.3;
   move(dir ? MAX_SPEED_RIGHT*speedRatio : -MAX_SPEED_RIGHT*speedRatio,  dir ? -MAX_SPEED_LEFT*speedRatio : MAX_SPEED_LEFT*speedRatio, 5);
 
+  int count  = 0;
+  float prevDeg = -999;
   while(abs(currentDeg - deg) > 4.0) {
     t2 = t1;
     t1 = micros();
     dm.updateGyro();
     currentDeg += (dm.getGyroZ() * (t1 - t2) * 0.000001) * (dir ? 1.0 : -1.0);
     delay(5);
+
+    count++;
+    if(count % 100 == 0) {
+      if(abs(prevDeg - currentDeg) < 10) {
+        move(-MAX_SPEED_RIGHT*0.75, -MAX_SPEED_LEFT*0.75, 1);
+        delay(200);
+        move(dir ? MAX_SPEED_RIGHT*speedRatio : -MAX_SPEED_RIGHT*speedRatio,  dir ? -MAX_SPEED_LEFT*speedRatio : MAX_SPEED_LEFT*speedRatio, 5);
+      }
+    }
   }
 
   move(0, 0, 1);
@@ -77,28 +88,4 @@ float getHeadingDiff() {
   }
 
   return currentDeg;
-}
-
-void moveDist(float targetDist) {
-  DataManager dm;
-
-  float dist = 0, vel = 0, acc;
-  unsigned long t1 = micros(), t2;
-
-  move(MAX_SPEED_RIGHT, MAX_SPEED_LEFT, 3);
-
-  while(dist < targetDist) {
-    t2 = t1;
-    t1 = micros();
-    dm.updateAccel();
-    vel += dm.getAccX() * (t1 - t2) * 0.000001;
-    dist += vel * (t1 - t2) * 0.000001;
-    Serial.print(dm.getAccX());
-    // Serial.print(' ');
-    // Serial.print(vel);
-    Serial.print('\n');
-    delay(5);
-  }
-
-  move(0, 0, 1);
 }
