@@ -26,8 +26,8 @@
 #define STBY 10
 
 // Motor Constants
-#define MAX_SPEED_LEFT 213
-#define MAX_SPEED_RIGHT 215
+#define MAX_SPEED_LEFT 215
+#define MAX_SPEED_RIGHT 213
 #define MOTOR_STANDBY 999
 
 // Distances

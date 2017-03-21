@@ -4,46 +4,33 @@
 #include "Defines.h"
 #include "MotorControl.cpp"
 #include "PitchControl.cpp"
+#include "HeadingControl.cpp"
 
 void ramp_searching() {
   DeviceState state;
   DataManager dm;
+  HeadingReader hr;
+
+  hr.heading = 0;
 
   // int sensor = 0;
   float ultrasonic_front = dm.getFrontUS();
   switch(state.current) {
   case RAMP_SEARCH:
-    move(MAX_SPEED_RIGHT*0.75, MAX_SPEED_LEFT*0.75, 10);
-    while(!(ultrasonic_front < 70 && ultrasonic_front > 40)) {
+    while(!(ultrasonic_front < 60 && ultrasonic_front > 40)) {
       dm.updateFrontUS();
       ultrasonic_front = dm.getFrontUS();
-      delay(60);
+      hr.updateForward(6);
     }
     while(ultrasonic_front > RAMP_DIST_X) {
       dm.updateFrontUS();
       ultrasonic_front = dm.getFrontUS();
-      delay(60);
+      hr.updateForward(6);
     }
     state.transition();
     break;
   case RAMP_TURN:
-////      move(0,0,1);
-//      move(-1*MAX_SPEED/2, MAX_SPEED/2, 4);
-//      sensor = analogRead(IR_PIN);
-//      // Get below 50
-//      while(sensor > 170) {
-//        sensor = analogRead(IR_PIN);
-//        Serial.println(sensor);
-////        delay(50);
-//      }
-//
-//      while(sensor < 220) {
-//        sensor = analogRead(IR_PIN);
-//        Serial.println(sensor);
-////        delay(50);
-//      }
-//      move(MAX_SPEED/2, MAX_SPEED/2, 1);
-      turn(LEFT, 90);
+      turn(LEFT, 90 -  (int) hr.heading);
       state.transition();
     break;
 

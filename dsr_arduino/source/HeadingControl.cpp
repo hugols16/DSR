@@ -44,10 +44,9 @@ public:
 
       if (t2 - t1 < 100000) {
         dm_m.updateGyro();
-        heading += dm_m.getGyroZ() * (t2 - t1) * 0.000001;
-        // Sigmoid function
-        float multiplier = (2.0 / (1.0 + pow(2, (-0.75 * abs(heading)))) - 0.5) * (heading > 0 ? -1.0 : 1.0);
-        move(MAX_SPEED_RIGHT * rightRatio * (baseSpeed + variableSpeed * multiplier), MAX_SPEED_LEFT * leftRatio * (baseSpeed - variableSpeed * multiplier), 1);
+        heading += dm_m.getGyroZ() * (t2 - t1) * 0.000001;        // Sigmoid function
+        float multiplier = (2.0 / (1.0 + pow(2, (-0.75 * abs(heading)))) - 0.5) * (heading > 0 ? 1.0 : -1.0);
+        move(MAX_SPEED_RIGHT * rightRatio * (baseSpeed - variableSpeed * multiplier), MAX_SPEED_LEFT * leftRatio * (baseSpeed + variableSpeed * multiplier), 1);
       }
 
       t1 = t2;

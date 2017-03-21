@@ -66,6 +66,7 @@ void turn(bool dir, float deg) {
         delay(200);
         move(dir ? MAX_SPEED_RIGHT*speedRatio : -MAX_SPEED_RIGHT*speedRatio,  dir ? -MAX_SPEED_LEFT*speedRatio : MAX_SPEED_LEFT*speedRatio, 5);
       }
+      prevDeg = currentDeg;
     }
   }
 
