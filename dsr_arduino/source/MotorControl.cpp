@@ -47,7 +47,7 @@ void turn(bool dir, float deg) {
   move(0,0,1);
   delay(200);
 
-  float speedRatio = 0.4;
+  float speedRatio = 0.3;
   move(dir ? MAX_SPEED_RIGHT*speedRatio : -MAX_SPEED_RIGHT*speedRatio,  dir ? -MAX_SPEED_LEFT*speedRatio : MAX_SPEED_LEFT*speedRatio, 5);
 
   int count  = 0;
@@ -86,11 +86,11 @@ float getHeadingDiff() {
   delay(2);
   unsigned long startTime = t1;
 
-  while(t1 - startTime < 2500000) {
+  while(t1 - startTime < 3000000) {
     t2 = t1;
     t1 = micros();
     dm.updateGyro();
-    delayMicroseconds(800);
+    delayMicroseconds(1200);
     currentDeg += dm.getGyroZ() * (t1 - t2) * 0.000001;
   }
 

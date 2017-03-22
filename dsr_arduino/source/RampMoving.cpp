@@ -38,9 +38,9 @@ void ramp_moving() {
   case RAMP_DOWN:
     Serial.println("RAMP_DOWN");
     // Turn at the bottom
-    move(MAX_SPEED_RIGHT*0.1,MAX_SPEED_LEFT*0.1,1);
-      heading_diff = getHeadingDiff();
-      turn(RIGHT, 90 + heading_diff);
+    move(MAX_SPEED_RIGHT*-0.1,MAX_SPEED_LEFT*0.2,1);
+    heading_diff = getHeadingDiff();
+    turn(RIGHT, 88 + heading_diff);
     move(0,0,1);
     state.transition();
     break;

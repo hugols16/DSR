@@ -71,12 +71,9 @@ void setup() {
 void loop() {
   dm.update();
 
-
   switch(state.current) {
     case READY:
 //    Serial.print(dm.getFrontUS());
-//    Serial.print(" ");
-//    Serial.print(dm.getBackUS());
 //    Serial.print(" ");
 //    Serial.print(dm.getRightUS());
 //    Serial.print(" ");

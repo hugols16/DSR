@@ -1,10 +1,10 @@
 // Ultrasonic Pins
-#define ECHO_PIN_RIGHT 31
-#define TRIG_PIN_RIGHT 33
-#define ECHO_PIN_FRONT 35
-#define TRIG_PIN_FRONT 37
-#define ECHO_PIN_LEFT 39
-#define TRIG_PIN_LEFT 41
+#define ECHO_PIN_RIGHT 39
+#define TRIG_PIN_RIGHT 41
+#define ECHO_PIN_FRONT 43
+#define TRIG_PIN_FRONT 45
+#define ECHO_PIN_LEFT 47
+#define TRIG_PIN_LEFT 49
 // #define ECHO_PIN_BACK 43
 // #define TRIG_PIN_BACK 45
 
