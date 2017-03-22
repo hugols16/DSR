@@ -52,8 +52,6 @@ void setup() {
   digitalWrite(TRIG_PIN_RIGHT, LOW);
   pinMode(TRIG_PIN_LEFT, OUTPUT);
   digitalWrite(TRIG_PIN_LEFT, LOW);
-  pinMode(TRIG_PIN_BACK, OUTPUT);
-  digitalWrite(TRIG_PIN_BACK, LOW);
 //
   delay(100);
 //  // Set IMU
