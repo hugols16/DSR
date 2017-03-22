@@ -3,6 +3,8 @@
 #include "DataManagement.cpp"
 #include "HeadingControl.cpp"
 
+float searchSpeed = 0.7;
+
 // class UsFilter {
 //   private:
 //     // bool usRight, usLeft;
@@ -98,8 +100,9 @@
 //     }
 // };
 
-int checkSides(HeadingReader *hr, bool right=false, bool left=false, float iterations=3, int range=60, float sensitivity=1.05, int frontTargetDist=999) {
+int checkSides(bool right=false, bool left=false, float iterations=3, int range=60, float sensitivity=1.05, int frontTargetDist=999) {
   DataManager dm;
+  HeadingReader hr;
   int us_right = 0;
   int us_left = 0;
   int us_front = 0;
@@ -110,7 +113,7 @@ int checkSides(HeadingReader *hr, bool right=false, bool left=false, float itera
   bool zero = false;
   while((right && countRight < iterations) || (left && countLeft < iterations)) {
   // for(int i=0; i<iterations; i++) {
-    
+
     dm.updateFrontUS();
     us_front = dm.getFrontUS();
     Serial.print(frontTargetDist);
@@ -135,16 +138,13 @@ int checkSides(HeadingReader *hr, bool right=false, bool left=false, float itera
       if (us_left != 0) {
         countLeft++;
         mean_left += us_left/iterations;
-      } 
+      }
     }
-    hr->update(3);
+    hr.update(3, searchSpeed, searchSpeed);
   }
   if (right && mean_right < range) return LEFT;
   if (left && mean_left < range) return RIGHT;
-  Serial.print(mean_right);
-  Serial.print(" ");
-  Serial.print(mean_left);
-  Serial.print("\n");
+
   return NOT_FOUND;
 }
 
@@ -158,8 +158,7 @@ void driveToBase(int found){
   }
   move(0,0,1);
   delay(200);
-  move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 1);
-  while(1) {}
+  hr.updateFoundBase();
   return;
 }
 
@@ -176,7 +175,7 @@ int moveSearchFront(int targetDist) {
   while(frontDist < 30) {
     dm.updateFrontUS();
     frontDist = dm.getFrontUS();
-    hr.update(4);
+    hr.update(4, searchSpeed, searchSpeed);
   }
   // while(1) {
   while(1) {
@@ -191,7 +190,7 @@ int moveSearchFront(int targetDist) {
     // rightDist = dm.getRightUS();
 
     // Use base algorithm
-    found = checkSides(&hr, true, false, 3.0, 40, 1.1, targetDist);
+    found = checkSides(true, false, 3.0, 40, 1.1, targetDist);
     // found = filter->findBase(rightDist, -1);
     if (found == FRONT) break;
 
@@ -213,9 +212,9 @@ int moveOneThird() {
 
   float frontDist = 0, rightDist = 0, leftDist = 0, backDist = 0;
   bool passed_mid = false;
-  
+
   // Split middle
-  hr.update(50);
+  hr.update(50, searchSpeed, searchSpeed);
   while(1) {
     // dm.updateBackUS();
     // // delay(5);
@@ -232,7 +231,7 @@ int moveOneThird() {
 
     // Use base algorithm
     // found = filter->findBase(rightDist, leftDist);
-    found = checkSides(&hr, true, true);
+    found = checkSides(true, true);
 
     if (found != NOT_FOUND) {
       return found;

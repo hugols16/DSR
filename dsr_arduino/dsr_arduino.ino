@@ -58,6 +58,7 @@ void setup() {
   delay(100);
 //  // Set IMU
   dm.setDataManagerIMU(imu);
+
 //
   // Set state to INIT
   state.init();
@@ -65,12 +66,14 @@ void setup() {
 //  hr.heading = 0;
 //
   // Move to READY
+
   state.transition();
 }
 
 void loop() {
   dm.update();
-//
+
+
   switch(state.current) {
     case READY:
 //    Serial.print(dm.getFrontUS());
@@ -82,12 +85,12 @@ void loop() {
 //    Serial.print(dm.getLeftUS());
 //    Serial.print("\n");
       state.transition();
-      state.transition();
-      state.transition();
-      state.transition();
-      state.transition();
-      state.transition();
-      state.transition();
+//      state.transition();
+//      state.transition();
+//      state.transition();
+//      state.transition();
+//      state.transition();
+//      state.transition();
       break;
     case RAMP_SEARCH:
     case RAMP_TURN:

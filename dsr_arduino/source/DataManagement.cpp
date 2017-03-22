@@ -44,22 +44,22 @@ public:
     usFront = sensorReadingFront();
     usLeft = sensorReadingLeft();
     usRight = sensorReadingRight();
-    usBack = sensorReadingBack();
+    // usBack = sensorReadingBack();
   }
 
   int getFrontUS() { return usFront; }
   int getLeftUS() { return usLeft; }
   int getRightUS() { return usRight; }
-  int getBackUS() { return usBack; }
+  // int getBackUS() { return usBack; }
 
   // int getFrontUS() { return sensorReadingFront(); }
   // int getLeftUS() { return sensorReadingLeft(); }
   // int getRightUS() { return sensorReadingRight(); }
   // int getBackUS() { return sensorReadingBack(); }
 
-  float getAccX() { return aX; }
-  float getAccY() { return aY; }
-  float getAccZ() { return aZ; }
+  // float getAccX() { return aX; }
+  // float getAccY() { return aY; }
+  // float getAccZ() { return aZ; }
 
   float getGyroX() { return gX; }
   float getGyroY() { return gY; }
@@ -70,7 +70,7 @@ public:
   float getMagY() { return mY; }
   float getMagZ() { return mZ; }
 
-  float getIR() { return ir; }
+  // float getIR() { return ir; }
 
   void setDataManagerIMU(LSM9DS1 new_imu) {
     imu_m = new_imu;
@@ -84,31 +84,31 @@ public:
     updateLeftUS();
     delay(5);
     updateRightUS();
-    delay(5);
-    updateBackUS();
+    // delay(5);
+    // updateBackUS();
 
-    updateAccel();
+    // updateAccel();
     updateGyro();
     updateMag();
-    updateIR();
+    // updateIR();
   }
 
-  void updateIR() {
-    int sensorValue = analogRead(12);
-    if (sensorValue > 517) {
-      ir = 0;
-    }
-    if (sensorValue < 104) {
-      ir = 0;
-    }
-
-    int i = 0;
-    while(ir_val[i] >= sensorValue) {
-      i++;
-    }
-
-    ir = ir * 0.3 + 0.7 * ((int) (10 + 10 * i + 10 * (ir_val[i-1] - sensorValue) / (ir_val[i-1] - ir_val[i])));
-  }
+  // void updateIR() {
+  //   int sensorValue = analogRead(12);
+  //   if (sensorValue > 517) {
+  //     ir = 0;
+  //   }
+  //   if (sensorValue < 104) {
+  //     ir = 0;
+  //   }
+  //
+  //   int i = 0;
+  //   while(ir_val[i] >= sensorValue) {
+  //     i++;
+  //   }
+  //
+  //   ir = ir * 0.3 + 0.7 * ((int) (10 + 10 * i + 10 * (ir_val[i-1] - sensorValue) / (ir_val[i-1] - ir_val[i])));
+  // }
 
   void updateMag() {
     imu_m.readMag();
@@ -131,12 +131,12 @@ public:
     gZ = imu_m.calcGyro(imu_m.gz) - 2.5637;
   }
 
-  void updateAccel() {
-    imu_m.readAccel();
-    aY = imu_m.calcAccel(imu_m.ay);
-    aX = imu_m.calcAccel(imu_m.ax);
-    aZ = imu_m.calcAccel(imu_m.az);
-  }
+  // void updateAccel() {
+  //   imu_m.readAccel();
+  //   aY = imu_m.calcAccel(imu_m.ay);
+  //   aX = imu_m.calcAccel(imu_m.ax);
+  //   aZ = imu_m.calcAccel(imu_m.az);
+  // }
 
   void updateLeftUS() {
     // int leftReading = (int) sensorReadingLeft();
@@ -173,13 +173,13 @@ public:
     // }
   }
 
-  void updateBackUS() {
-    int backReading = (int) sensorReadingBack();
-
-    if(backReading != 0) {
-      usBack = backReading;
-    }
-  }
+  // void updateBackUS() {
+  //   int backReading = (int) sensorReadingBack();
+  //
+  //   if(backReading != 0) {
+  //     usBack = backReading;
+  //   }
+  // }
 
   int updateUS(int reading, float mem[4]) {
     if(reading == 0) {
@@ -208,11 +208,11 @@ public:
 int DataManager::usFront = 0;
 int DataManager::usLeft = 0;
 int DataManager::usRight = 0;
-int DataManager::usBack = 0;
+// int DataManager::usBack = 0;
 
-float DataManager::aX = 0;
-float DataManager::aY = 0;
-float DataManager::aZ = 0;
+// float DataManager::aX = 0;
+// float DataManager::aY = 0;
+// float DataManager::aZ = 0;
 
 float DataManager::gX = 0;
 float DataManager::gY = 0;
@@ -226,6 +226,6 @@ float DataManager::heading = 0;
 float DataManager::leftMem[4] = {70, 70, 70, 70};
 float DataManager::rightMem[4] = {70, 70, 70, 70};
 
-int DataManager::ir = 0;
+// int DataManager::ir = 0;
 
 LSM9DS1 DataManager::imu_m;

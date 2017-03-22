@@ -6,6 +6,8 @@
 #include "PitchControl.cpp"
 #include "HeadingControl.cpp"
 
+float rampSearchSpeed = 1.0;
+
 void ramp_searching() {
   DeviceState state;
   DataManager dm;
@@ -20,12 +22,14 @@ void ramp_searching() {
     while(!(ultrasonic_front < 60 && ultrasonic_front > 40)) {
       dm.updateFrontUS();
       ultrasonic_front = dm.getFrontUS();
-      hr.updateForward(3);
+      hr.updateForward(3, rampSearchSpeed, rampSearchSpeed);
     }
-    while(ultrasonic_front > RAMP_DIST_X) {
+
+    // hr.updateForward(200 * 1.0/rampSearchSpeed, rampSearchSpeed, rampSearchSpeed);
+    while(ultrasonic_front == 0 || ultrasonic_front > RAMP_DIST_X) {
       dm.updateFrontUS();
       ultrasonic_front = dm.getFrontUS();
-      hr.updateForward(3);
+      hr.updateForward(4, rampSearchSpeed, rampSearchSpeed);
     }
     state.transition();
     break;
@@ -35,7 +39,7 @@ void ramp_searching() {
     break;
 
   case RAMP_AHEAD:
-    move(MAX_SPEED_RIGHT, MAX_SPEED_LEFT, 20);
+    move(MAX_SPEED_RIGHT, MAX_SPEED_LEFT, 10);
     waitFor(UP, 25);
     delay(500);
     state.transition();

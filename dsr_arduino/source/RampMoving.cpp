@@ -21,7 +21,7 @@ void ramp_moving() {
   switch(state.current) {
   case RAMP_UP:
     Serial.println("RAMP_UP");
-    move(MAX_SPEED_RIGHT, MAX_SPEED_LEFT, 20);
+    move(MAX_SPEED_RIGHT, MAX_SPEED_LEFT, 1);
     ramp_up_mz = dm.getMagZ();
     new_mz = ramp_up_mz;
     Serial.println(new_mz);

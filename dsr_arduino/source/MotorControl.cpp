@@ -47,7 +47,7 @@ void turn(bool dir, float deg) {
   move(0,0,1);
   delay(200);
 
-  float speedRatio = 0.3;
+  float speedRatio = 0.4;
   move(dir ? MAX_SPEED_RIGHT*speedRatio : -MAX_SPEED_RIGHT*speedRatio,  dir ? -MAX_SPEED_LEFT*speedRatio : MAX_SPEED_LEFT*speedRatio, 5);
 
   int count  = 0;
@@ -57,16 +57,17 @@ void turn(bool dir, float deg) {
     t1 = micros();
     dm.updateGyro();
     currentDeg += (dm.getGyroZ() * (t1 - t2) * 0.000001) * (dir ? 1.0 : -1.0);
+    currentDeg = currentDeg - ((int)(currentDeg / 360.0)) * 360.0;
     delay(5);
 
     count++;
     if(count % 100 == 0) {
-      if(abs(prevDeg - currentDeg) < 10) {
+      if(abs(prevDeg - currentDeg) < 5) {
         if(count % 200 == 0) {
-          move(-MAX_SPEED_RIGHT*0.75, -MAX_SPEED_LEFT*0.75, 1);
+          move(-MAX_SPEED_RIGHT*speedRatio, -MAX_SPEED_LEFT*speedRatio, 1);
         } else {
-          move(MAX_SPEED_RIGHT*0.75, MAX_SPEED_LEFT*0.75, 1);
-        }      
+          move(MAX_SPEED_RIGHT*speedRatio, MAX_SPEED_LEFT*speedRatio, 1);
+        }
         delay(200);
         move(dir ? MAX_SPEED_RIGHT*speedRatio : -MAX_SPEED_RIGHT*speedRatio,  dir ? -MAX_SPEED_LEFT*speedRatio : MAX_SPEED_LEFT*speedRatio, 5);
       }
@@ -89,7 +90,7 @@ float getHeadingDiff() {
     t2 = t1;
     t1 = micros();
     dm.updateGyro();
-    delay(1);
+    delayMicroseconds(800);
     currentDeg += dm.getGyroZ() * (t1 - t2) * 0.000001;
   }
 
