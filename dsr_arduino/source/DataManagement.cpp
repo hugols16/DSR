@@ -147,9 +147,9 @@ public:
     // }
     int leftReading = (int) sensorReadingLeft();
 
-    if(leftReading != 0) {
+    // if(leftReading != 0) {
       usLeft = leftReading;
-    }
+    // }
   }
 
   void updateRightUS() {
@@ -160,17 +160,17 @@ public:
     // }
     int rightReading = (int) sensorReadingRight();
 
-    if(rightReading != 0) {
+    // if(rightReading != 0) {
       usRight = rightReading;
-    }
+    // }
   }
 
   void updateFrontUS() {
     int frontReading = (int) sensorReadingFront();
 
-    if(frontReading != 0) {
+    // if(frontReading != 0) {
       usFront = frontReading;
-    }
+    // }
   }
 
   void updateBackUS() {

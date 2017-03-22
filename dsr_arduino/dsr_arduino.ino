@@ -1,3 +1,4 @@
+#include <NewPing.h>
 #include <Wire.h>
 #include <SPI.h>
 
