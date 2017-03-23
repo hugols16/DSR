@@ -28,7 +28,7 @@
 #define MOTOR_STANDBY 999
 
 // Distances
-#define RAMP_DIST_X 30.0f
+#define RAMP_DIST_X 26.0f
 #define RAMP_DIST_Y 45.0f
 
 #define offsetA 1

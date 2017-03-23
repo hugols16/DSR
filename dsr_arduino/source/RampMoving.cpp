@@ -40,7 +40,7 @@ void ramp_moving() {
     // Turn at the bottom
     move(MAX_SPEED_RIGHT*0.2,MAX_SPEED_LEFT*-0.1,1);
     heading_diff = getHeadingDiff();
-    turn(LEFT, 88 - heading_diff);
+    turn(LEFT, 70 - heading_diff);
     move(0,0,1);
     state.transition();
     break;

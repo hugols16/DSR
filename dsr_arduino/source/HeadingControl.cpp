@@ -8,8 +8,8 @@ private:
   static unsigned long t2;
   static DataManager dm_m;
 
-  float baseSpeed = 0.9;
-  float variableSpeed = 0.1;
+  float baseSpeed = 0.95;
+  float variableSpeed = 0.05;
 
 public:
   static float heading;
@@ -51,7 +51,11 @@ public:
     }
   }
 
-  void updateFoundBase() {
+  void updateFoundBase(int found) {
+    if(found != FRONT){
+      delay(200);
+      turn(found, 90);
+    }
     heading = 0;
     while(1) {
       for (int i = 0; i < 300; i++) {

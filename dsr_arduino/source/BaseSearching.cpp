@@ -100,12 +100,13 @@ float searchSpeed = 0.7;
 //     }
 // };
 
-int checkSides(bool right=false, bool left=false, float iterations=3, int range=60, float sensitivity=1.05, int backTargetDist=999) {
+int checkSides(bool right=false, bool left=false, bool front=false, float iterations=3, int range=60, int frontRange=40, float sensitivity=1.05, int backTargetDist=999) {
   DataManager dm;
   HeadingReader hr;
   int us_right = 0;
   int us_left = 0;
   int us_back = 0;
+  int us_front = 0;
   float mean_right = 0;
   float mean_left = 0;
   int countRight = 0, countLeft = 0;
@@ -117,6 +118,11 @@ int checkSides(bool right=false, bool left=false, float iterations=3, int range=
     us_back = dm.getBackUS();
     if (us_back > backTargetDist) return BACK;
 
+    if (front) {
+      dm.updateFrontUS();
+      us_front = dm.getFrontUS();
+      if (us_front && us_front < frontRange) return FRONT;
+    }
     if (right && countRight < iterations) {
       dm.updateRightUS();
       us_right = dm.getRightUS();
@@ -143,20 +149,6 @@ int checkSides(bool right=false, bool left=false, float iterations=3, int range=
   return NOT_FOUND;
 }
 
-void driveToBase(int found){
-  HeadingReader hr;
-  Serial.println("FOUND!");
-  DeviceState state;
-  if(found != FRONT){
-    delay(200);
-    turn(found, 90);
-  }
-  move(0,0,1);
-  delay(200);
-  hr.updateFoundBase();
-  return;
-}
-
 int moveSearchFront(int targetDist) {
   DataManager dm;
   // UsFilter* filter = new UsFilter();
@@ -172,21 +164,10 @@ int moveSearchFront(int targetDist) {
     backDist = dm.getBackUS();
     hr.updateForward(4, searchSpeed, searchSpeed);
   }
-  // while(1) {
   while(1) {
-    // dm.updateBackUS();
-    // delay(2);
-    // dm.updateFrontUS();
-    // delay(2);
-    // dm.updateRightUS();
-
-    // backDist = dm.getBackUS();
-    // frontDist = dm.getFrontUS();
-    // rightDist = dm.getRightUS();
 
     // Use base algorithm
-    found = checkSides(false, true, 3.0, 40, 1.1, targetDist);
-    // found = filter->findBase(rightDist, -1);
+    found = checkSides(false, true, true, 3.0, 60, 40, 1.1, targetDist);
     if (found == BACK) {
       break;
     }
@@ -200,7 +181,6 @@ int moveSearchFront(int targetDist) {
 
 int moveOneThird() {
   DataManager dm;
-  // UsFilter* filter = new UsFilter();
   int found = NOT_FOUND;
   move(MAX_SPEED_RIGHT, MAX_SPEED_LEFT, 1);
   HeadingReader hr;
@@ -212,111 +192,29 @@ int moveOneThird() {
   // Split middle
   hr.updateForward(50, searchSpeed, searchSpeed);
   while(1) {
-    // dm.updateBackUS();
-    // // delay(5);
-    // dm.updateFrontUS();
-    // delay(5);
-    // dm.updateRightUS();
-    // delay(5);
-    // dm.updateLeftUS();
-
-    // backDist = dm.getBackUS();
-    // frontDist = dm.getFrontUS();
-    // rightDist = dm.getRightUS();
-    // leftDist = dm.getLeftUS();
-
     // Use base algorithm
-    // found = filter->findBase(rightDist, leftDist);
-    found = checkSides(true, true);
+    found = checkSides(true, true, true, 3.0, 60, 12, 1.05, 999);
 
     if (found != NOT_FOUND) {
       return found;
     }
-
-    // if (frontDist > 100 && frontDist != 0) {
-    //   passed_mid = true;
-    // }
-
-    // if (backDist < 40 && backDist != 0 && !passed_mid) {
-    //   Serial.println("Forward");
-    //   return FORWARD;
-    // }
-    // hr.updateForward(3);
   }
-
-  // turn(RIGHT, 90 + (int) hr.heading);
-  // move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 1);
-  // dm.updateBackUS();
-  // backDist = dm.getBackUS();
-  // hr.heading = 0;
-
-  // // Move parallel to the wall
-  // while(!(backDist < 70 && backDist > 40)) {
-  //   hr.updateForward(6);
-  //   dm.updateBackUS();
-  //   backDist = dm.getBackUS();
-  // }
-  // while(backDist > 30) {
-  //   dm.updateBackUS();
-  //   backDist = dm.getBackUS();
-  //   hr.updateForward(6);
-  // }
-  // turn(RIGHT, 90 - (int) hr.heading);
-  // move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 1);
-  // dm.updateBackUS();
-  // delay(2);
-  // dm.updateLeftUS();
-  // delay(2);
-  // dm.updateFrontUS();
-  // passed_mid = false;
-
-  // hr.heading = 0;
-
-  // // Check again for edge cases
-  // while(frontDist < 100 || (passed_mid && backDist && backDist > 20)) {
-  //   dm.updateBackUS();
-  //   delay(2);
-  //   dm.updateFrontUS();
-  //   // delay(2);
-  //   // dm.updateLeftUS();
-
-  //   backDist = dm.getBackUS();
-  //   frontDist = dm.getFrontUS();
-  //   // leftDist = dm.getLeftUS();
-
-  //   if (frontDist > 100 && frontDist != 0) {
-  //     passed_mid = true;
-  //   }
-
-  //   // found = filter->findBase(-1, leftDist);
-  //   found = checkSides(&hr, false, true);
-
-  //   if (found != NOT_FOUND) {
-  //     return found;
-  //   }
-  //   if (backDist < 40 && backDist != 0 && !passed_mid) {
-  //     Serial.println("Forward");
-  //     return FORWARD;
-  //   }
-  //   // delay(50);
-  //   // hr.updateForward(3);
-  // }
-  // return NOT_FOUND;
 }
 
 void searchForBase() {
   Serial.println("Searching");
   DataManager dm;
+  HeadingReader hr;
   DeviceState state;
   int found;
   found = moveSearchFront(115);
   if (found != NOT_FOUND) {
     state.transition();
-    driveToBase(found);
+    hr.updateFoundBase(found);
   }
   found = moveOneThird();
   if (found != NOT_FOUND) {
-    driveToBase(found);
+    hr.updateFoundBase(found);
   }
   state.transition();
   state.transition();

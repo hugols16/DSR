@@ -39,7 +39,7 @@ void move(int speedRight, int speedLeft, int ramp_step) {
 }
 
 // dir 0 -> right turn ,  dir 1 -> left turn
-void turn(bool dir, float deg) {
+void turn(bool dir, float deg, float speedRatio = 0.4) {
   DataManager dm;
   float currentDeg = 0;
   unsigned long t1 = micros(), t2;
@@ -47,7 +47,6 @@ void turn(bool dir, float deg) {
   move(0,0,1);
   delay(200);
 
-  float speedRatio = 0.3;
   move(dir ? MAX_SPEED_RIGHT*speedRatio : -MAX_SPEED_RIGHT*speedRatio,  dir ? -MAX_SPEED_LEFT*speedRatio : MAX_SPEED_LEFT*speedRatio, 5);
 
   int count  = 0;

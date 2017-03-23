@@ -34,7 +34,7 @@ void ramp_searching() {
     state.transition();
     break;
   case RAMP_TURN:
-      turn(LEFT, 85 -  (int) hr.heading);
+      turn(LEFT, 90 -  (int) hr.heading);
       state.transition();
     break;
 
