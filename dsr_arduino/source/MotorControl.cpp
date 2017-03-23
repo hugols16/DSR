@@ -39,7 +39,7 @@ void move(int speedRight, int speedLeft, int ramp_step) {
 }
 
 // dir 0 -> right turn ,  dir 1 -> left turn
-void turn(bool dir, float deg, float speedRatio = 0.4) {
+void turn(bool dir, float deg, float speedRatio = 0.25) {
   DataManager dm;
   float currentDeg = 0;
   unsigned long t1 = micros(), t2;
@@ -47,21 +47,24 @@ void turn(bool dir, float deg, float speedRatio = 0.4) {
   move(0,0,1);
   delay(200);
 
+  if (deg < 0) {
+    dir = !dir;
+  }
   move(dir ? MAX_SPEED_RIGHT*speedRatio : -MAX_SPEED_RIGHT*speedRatio,  dir ? -MAX_SPEED_LEFT*speedRatio : MAX_SPEED_LEFT*speedRatio, 5);
-
+  
   int count  = 0;
   float prevDeg = -999;
-  while(abs(currentDeg - deg) > 4.0) {
+  while(abs(currentDeg - abs(deg)) > 5.0) {
     t2 = t1;
     t1 = micros();
     dm.updateGyro();
     currentDeg += (dm.getGyroZ() * (t1 - t2) * 0.000001) * (dir ? 1.0 : -1.0);
-    currentDeg = currentDeg - ((int)(currentDeg / 360.0)) * 360.0;
-    delay(5);
+    currentDeg -= ((int)(currentDeg / 360.0)) * 360.0;
+    delay(10);
 
     count++;
     if(count % 100 == 0) {
-      if(abs(prevDeg - currentDeg) < 5) {
+      if(abs(prevDeg - currentDeg) < 4) {
         if(count % 200 == 0) {
           move(-MAX_SPEED_RIGHT*speedRatio, -MAX_SPEED_LEFT*speedRatio, 1);
         } else {

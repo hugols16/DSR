@@ -35,12 +35,12 @@ void ramp_moving() {
     move(MAX_SPEED_RIGHT/2,MAX_SPEED_LEFT/2,10);
     waitFor(DOWN, 25);
     state.transition();
-  case RAMP_DOWN:
+  // case RAMP_DOWN:
     Serial.println("RAMP_DOWN");
     // Turn at the bottom
     move(MAX_SPEED_RIGHT*0.2,MAX_SPEED_LEFT*-0.1,1);
     heading_diff = getHeadingDiff();
-    turn(LEFT, 70 - heading_diff);
+    turn(LEFT, 85 - heading_diff);
     move(0,0,1);
     state.transition();
     break;

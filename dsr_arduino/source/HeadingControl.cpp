@@ -8,8 +8,8 @@ private:
   static unsigned long t2;
   static DataManager dm_m;
 
-  float baseSpeed = 0.95;
-  float variableSpeed = 0.05;
+  float baseSpeed = 0.9;
+  float variableSpeed = 0.1;
 
 public:
   static float heading;

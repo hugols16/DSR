@@ -70,23 +70,32 @@ void setup() {
   state.transition();
 }
 
+//float currentDeg = 0;
+//unsigned long t1 = micros(), t2 = micros();
 void loop() {
+//  t2 = t1;
+//  t1 = micros();
+//  dm.updateGyro();
+//  currentDeg += (dm.getGyroZ() * (t1 - t2) * 0.000001);
+//  
+//  Serial.println(currentDeg);
+    
   dm.update();
   switch(state.current) {
     case READY:
-//    Serial.print(dm.getFrontUS());
-//    Serial.print(" ");
-//    Serial.print(dm.getRightUS());
-//    Serial.print(" ");
-//    Serial.print(dm.getLeftUS());
-//    Serial.print("\n");
+////    Serial.print(dm.getFrontUS());
+////    Serial.print(" ");
+////    Serial.print(dm.getRightUS());
+////    Serial.print(" ");
+////    Serial.print(dm.getLeftUS());
+////    Serial.print("\n");
       state.transition();
-//      state.transition();
-//      state.transition();
-//      state.transition();
-//      state.transition();
-//      state.transition();
-//      state.transition();
+////      state.transition();
+////      state.transition();
+////      state.transition();
+////      state.transition();
+////      state.transition();
+////      state.transition();
       break;
     case RAMP_SEARCH:
     case RAMP_TURN:
