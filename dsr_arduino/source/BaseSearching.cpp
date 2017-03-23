@@ -100,12 +100,11 @@ float searchSpeed = 0.7;
 //     }
 // };
 
-int checkSides(bool right=false, bool left=false, float iterations=3, int range=60, float sensitivity=1.05, int frontTargetDist=999) {
+int checkSides(bool right=false, bool left=false, float iterations=3, int range=60, float sensitivity=1.05, int backTargetDist=999) {
   DataManager dm;
   HeadingReader hr;
   int us_right = 0;
   int us_left = 0;
-  int us_front = 0;
   int us_back = 0;
   float mean_right = 0;
   float mean_left = 0;
@@ -114,13 +113,9 @@ int checkSides(bool right=false, bool left=false, float iterations=3, int range=
   while((right && countRight < iterations) || (left && countLeft < iterations)) {
   // for(int i=0; i<iterations; i++) {
 
-    dm.updateFrontUS();
-    us_front = dm.getFrontUS();
-    Serial.print(frontTargetDist);
-    Serial.print(" ");
-    Serial.print(us_front);
-    Serial.print("\n");
-    if (us_front > frontTargetDist) return FRONT;
+    dm.updateBackUS();
+    us_back = dm.getBackUS();
+    if (us_back > backTargetDist) return BACK;
 
     if (right && countRight < iterations) {
       dm.updateRightUS();
@@ -140,10 +135,10 @@ int checkSides(bool right=false, bool left=false, float iterations=3, int range=
         mean_left += us_left/iterations;
       }
     }
-    hr.update(3, searchSpeed, searchSpeed);
+    hr.updateForward(3, searchSpeed, searchSpeed);
   }
-  if (right && mean_right < range) return LEFT;
-  if (left && mean_left < range) return RIGHT;
+  if (right && mean_right < range) return RIGHT;
+  if (left && mean_left < range) return LEFT;
 
   return NOT_FOUND;
 }
@@ -166,16 +161,16 @@ int moveSearchFront(int targetDist) {
   DataManager dm;
   // UsFilter* filter = new UsFilter();
   int found = NOT_FOUND;
-  move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 20);
+  move(MAX_SPEED_RIGHT, MAX_SPEED_LEFT, 20);
   HeadingReader hr;
   hr.heading = 0;
   float backDist = 0, frontDist = 0, rightDist = 0;
 
   // So we don't see the ramp
-  while(frontDist < 30) {
-    dm.updateFrontUS();
-    frontDist = dm.getFrontUS();
-    hr.update(4, searchSpeed, searchSpeed);
+  while(backDist < 30) {
+    dm.updateBackUS();
+    backDist = dm.getBackUS();
+    hr.updateForward(4, searchSpeed, searchSpeed);
   }
   // while(1) {
   while(1) {
@@ -190,15 +185,16 @@ int moveSearchFront(int targetDist) {
     // rightDist = dm.getRightUS();
 
     // Use base algorithm
-    found = checkSides(true, false, 3.0, 40, 1.1, targetDist);
+    found = checkSides(false, true, 3.0, 40, 1.1, targetDist);
     // found = filter->findBase(rightDist, -1);
-    if (found == FRONT) break;
+    if (found == BACK) {
+      break;
+    }
 
     if (found != NOT_FOUND) return found;
 
   }
   turn(LEFT, 90 - (int) hr.heading);
-  Serial.println("Not Found");
   return NOT_FOUND;
 }
 
@@ -206,7 +202,7 @@ int moveOneThird() {
   DataManager dm;
   // UsFilter* filter = new UsFilter();
   int found = NOT_FOUND;
-  move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 1);
+  move(MAX_SPEED_RIGHT, MAX_SPEED_LEFT, 1);
   HeadingReader hr;
   hr.heading = 0;
 
@@ -214,7 +210,7 @@ int moveOneThird() {
   bool passed_mid = false;
 
   // Split middle
-  hr.update(50, searchSpeed, searchSpeed);
+  hr.updateForward(50, searchSpeed, searchSpeed);
   while(1) {
     // dm.updateBackUS();
     // // delay(5);
@@ -245,7 +241,7 @@ int moveOneThird() {
     //   Serial.println("Forward");
     //   return FORWARD;
     // }
-    // hr.update(3);
+    // hr.updateForward(3);
   }
 
   // turn(RIGHT, 90 + (int) hr.heading);
@@ -256,14 +252,14 @@ int moveOneThird() {
 
   // // Move parallel to the wall
   // while(!(backDist < 70 && backDist > 40)) {
-  //   hr.update(6);
+  //   hr.updateForward(6);
   //   dm.updateBackUS();
   //   backDist = dm.getBackUS();
   // }
   // while(backDist > 30) {
   //   dm.updateBackUS();
   //   backDist = dm.getBackUS();
-  //   hr.update(6);
+  //   hr.updateForward(6);
   // }
   // turn(RIGHT, 90 - (int) hr.heading);
   // move(-MAX_SPEED_RIGHT, -MAX_SPEED_LEFT, 1);
@@ -303,7 +299,7 @@ int moveOneThird() {
   //     return FORWARD;
   //   }
   //   // delay(50);
-  //   // hr.update(3);
+  //   // hr.updateForward(3);
   // }
   // return NOT_FOUND;
 }

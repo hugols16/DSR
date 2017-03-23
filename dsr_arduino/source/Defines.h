@@ -5,8 +5,8 @@
 #define TRIG_PIN_FRONT 45
 #define ECHO_PIN_LEFT 47
 #define TRIG_PIN_LEFT 49
-// #define ECHO_PIN_BACK 43
-// #define TRIG_PIN_BACK 45
+#define ECHO_PIN_BACK 51
+#define TRIG_PIN_BACK 53
 
 // IMU Pins
 // SDO_XM and SDO_G are both pulled high, so our addresses are:
@@ -28,7 +28,7 @@
 #define MOTOR_STANDBY 999
 
 // Distances
-#define RAMP_DIST_X 28.0f
+#define RAMP_DIST_X 30.0f
 #define RAMP_DIST_Y 45.0f
 
 #define offsetA 1
@@ -39,6 +39,6 @@
 #define LEFT 1
 #define FRONT 2
 #define BACK 3
-#define NOT_FOUND 3
+#define NOT_FOUND 4
 #define UP 0
 #define DOWN 1

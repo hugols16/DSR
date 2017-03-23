@@ -63,8 +63,8 @@ public:
           // Sigmoid function
           float multiplier = (2.0 / (1.0 + pow(2, (-0.75 * abs(heading)))) - 0.5) * (heading > 0 ? -1.0 : 1.0);
 
-          float rightSpeed = max(-MAX_SPEED_RIGHT * (1.0 - 0.1 * multiplier), -MAX_SPEED_RIGHT);
-          float leftSpeed = max(-MAX_SPEED_LEFT * (1.0 + 0.1 * multiplier), -MAX_SPEED_RIGHT);
+          float rightSpeed = max(MAX_SPEED_RIGHT * (1.0 + 0.1 * multiplier), MAX_SPEED_RIGHT);
+          float leftSpeed = max(MAX_SPEED_LEFT * (1.0 - 0.1 * multiplier), MAX_SPEED_RIGHT);
           move(rightSpeed, leftSpeed, 1);
         }
 

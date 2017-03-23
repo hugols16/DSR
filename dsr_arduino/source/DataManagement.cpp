@@ -44,13 +44,13 @@ public:
     usFront = sensorReadingFront();
     usLeft = sensorReadingLeft();
     usRight = sensorReadingRight();
-    // usBack = sensorReadingBack();
+    usBack = sensorReadingBack();
   }
 
   int getFrontUS() { return usFront; }
   int getLeftUS() { return usLeft; }
   int getRightUS() { return usRight; }
-  // int getBackUS() { return usBack; }
+  int getBackUS() { return usBack; }
 
   // int getFrontUS() { return sensorReadingFront(); }
   // int getLeftUS() { return sensorReadingLeft(); }
@@ -84,8 +84,8 @@ public:
     updateLeftUS();
     delay(5);
     updateRightUS();
-    // delay(5);
-    // updateBackUS();
+    delay(5);
+    updateBackUS();
 
     // updateAccel();
     updateGyro();
@@ -173,13 +173,13 @@ public:
     // }
   }
 
-  // void updateBackUS() {
-  //   int backReading = (int) sensorReadingBack();
-  //
-  //   if(backReading != 0) {
-  //     usBack = backReading;
-  //   }
-  // }
+  void updateBackUS() {
+    int backReading = (int) sensorReadingBack();
+  
+    if(backReading != 0) {
+      usBack = backReading;
+    }
+  }
 
   int updateUS(int reading, float mem[4]) {
     if(reading == 0) {
@@ -208,7 +208,7 @@ public:
 int DataManager::usFront = 0;
 int DataManager::usLeft = 0;
 int DataManager::usRight = 0;
-// int DataManager::usBack = 0;
+int DataManager::usBack = 0;
 
 // float DataManager::aX = 0;
 // float DataManager::aY = 0;

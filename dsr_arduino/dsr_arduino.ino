@@ -48,6 +48,8 @@ void setup() {
   // Set up the Ultrasonic Sensors
   pinMode(TRIG_PIN_FRONT, OUTPUT);
   digitalWrite(TRIG_PIN_FRONT, LOW);
+  pinMode(TRIG_PIN_BACK, OUTPUT);
+  digitalWrite(TRIG_PIN_BACK, LOW);
   pinMode(TRIG_PIN_RIGHT, OUTPUT);
   digitalWrite(TRIG_PIN_RIGHT, LOW);
   pinMode(TRIG_PIN_LEFT, OUTPUT);
@@ -70,7 +72,6 @@ void setup() {
 
 void loop() {
   dm.update();
-
   switch(state.current) {
     case READY:
 //    Serial.print(dm.getFrontUS());
