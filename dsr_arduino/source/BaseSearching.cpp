@@ -4,7 +4,7 @@
 #include "HeadingControl.cpp"
 
 float approachSpeed_80 = 1.0;
-float approachSpeed_target = 0.6;
+float approachSpeed_target = 0.7;
 float splitSpeed = 1.0;
 
 int checkFront(float range=30, float sensitivity=1.05, float iterations=4.0) {
@@ -36,7 +36,6 @@ int checkSides(float speed, bool right=false, bool left=false, float iterations=
   float mean_right = 0;
   float mean_left = 0;
   int countRight = 0, countLeft = 0;
-  bool zero = false;
   while((right && countRight < iterations) || (left && countLeft < iterations)) {
 
     dm.updateBackUS();
@@ -87,7 +86,7 @@ int moveSearchFront(int targetDist) {
   while(1) {
 
     // Use base algorithm
-    found = checkSides(approachSpeed_80, false, true, 3.0, 60, 1.1, 105.0);
+    found = checkSides(approachSpeed_80, false, true, 3.0, 60, 1.1, targetDist - 10.0);
     if (found == BACK) {
       break;
     }
@@ -110,7 +109,7 @@ int moveSearchFront(int targetDist) {
   found = checkFront();
   if (found == FRONT) return FRONT;
   turn(LEFT, 90 - (int) hr.heading);
-  delay(300);
+  delay(50);
   return NOT_FOUND;
 }
 
@@ -129,7 +128,7 @@ int moveOneThird() {
 
   // Split middle
   // hr.updateForward(50, splitSpeed, splitSpeed );
-  while(t2-t1 < 300000) {
+  while(t2-t1 < 150000) {
     // Use base algorithm
     found = checkSides(splitSpeed-0.3, true, true, 4.0, 60, 1.05, 999);
 
@@ -161,7 +160,7 @@ void searchForBase() {
   }
   found = moveOneThird();
   if (found != NOT_FOUND) {
-    hr.updateFoundBase(found);
+    hr.updateFoundBase(found, 95);
   }
   state.transition();
   state.transition();

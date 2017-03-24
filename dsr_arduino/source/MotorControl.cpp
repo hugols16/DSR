@@ -39,13 +39,15 @@ void move(int speedRight, int speedLeft, int ramp_step) {
 }
 
 // dir 0 -> right turn ,  dir 1 -> left turn
-void turn(bool dir, float deg, float speedRatio = 0.25) {
+void turn(bool dir, float deg, float speedRatio = 0.5) {
   DataManager dm;
   float currentDeg = 0;
   unsigned long t1 = micros(), t2;
 
   move(0,0,1);
   delay(200);
+
+  deg *= 0.95;
 
   if (deg < 0) {
     dir = !dir;
