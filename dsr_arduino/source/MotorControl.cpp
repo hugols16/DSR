@@ -1,6 +1,5 @@
 #pragma once
 #include "Defines.h"
-// #include <math.h>
 
 class DSRMotor: public Motor {
   private:
@@ -26,6 +25,7 @@ void move(int speedRight, int speedLeft, int ramp_step) {
   if (diffRight == 0 && diffLeft == 0) {
     return;
   }
+  
   motorRight.drive(motorRight.getCurrentSpeed() + diffRight/ramp_step);
   motorLeft.drive(motorLeft.getCurrentSpeed() + diffLeft/ramp_step);
 
@@ -53,7 +53,7 @@ void turn(bool dir, float deg, float speedRatio = 0.5) {
     dir = !dir;
   }
   move(dir ? MAX_SPEED_RIGHT*speedRatio : -MAX_SPEED_RIGHT*speedRatio,  dir ? -MAX_SPEED_LEFT*speedRatio : MAX_SPEED_LEFT*speedRatio, 5);
-  
+
   int count  = 0;
   float prevDeg = -999;
   while(abs(currentDeg - abs(deg)) > 5.0) {

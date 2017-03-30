@@ -20,17 +20,14 @@
 
 // Create IMU object
 LSM9DS1 imu;
-//
-// Create Global State Machine
+// Create State Machine
 DeviceState state;
-//
-// Create Global Data Manager
+// Create Data Manager
 DataManager dm;
-//HeadingReader hr;
 
 void setup() {
   Serial.begin(9600);
-  
+
   // Setting up the imu
   imu.settings.device.commInterface = IMU_MODE_I2C; // Set mode to I2C
   imu.settings.device.mAddress = LSM9DS1_M; // Set mag address to 0x1E
@@ -38,7 +35,7 @@ void setup() {
   imu.settings.accel.scale = 4; // Set accel range to +/-4g
   imu.settings.gyro.scale = 500; // Set gyro range to +/-720dps
   imu.settings.mag.scale = 2; // Set mag range to +/-2Gs
-//
+
   if (!imu.begin()) {
     Serial.println("Failed to communicate with LSM9DS1.");
     Serial.println("Looping to infinity.");
@@ -54,48 +51,23 @@ void setup() {
   digitalWrite(TRIG_PIN_RIGHT, LOW);
   pinMode(TRIG_PIN_LEFT, OUTPUT);
   digitalWrite(TRIG_PIN_LEFT, LOW);
-//
+
   delay(100);
-//  // Set IMU
+  // Set IMU
   dm.setDataManagerIMU(imu);
 
-//
   // Set state to INIT
   state.init();
-//
-//  hr.heading = 0;
-//
-  // Move to READY
 
+  // Move to READY
   state.transition();
 }
 
-//float currentDeg = 0;
-//unsigned long t1 = micros(), t2 = micros();
 void loop() {
-//  t2 = t1;
-//  t1 = micros();
-//  dm.updateGyro();
-//  currentDeg += (dm.getGyroZ() * (t1 - t2) * 0.000001);
-//  
-//  Serial.println(currentDeg);
-    
   dm.update();
   switch(state.current) {
     case READY:
-////    Serial.print(dm.getFrontUS());
-////    Serial.print(" ");
-////    Serial.print(dm.getRightUS());
-////    Serial.print(" ");
-////    Serial.print(dm.getLeftUS());
-////    Serial.print("\n");
       state.transition();
-////      state.transition();
-////      state.transition();
-////      state.transition();
-////      state.transition();
-////      state.transition();
-////      state.transition();
       break;
     case RAMP_SEARCH:
     case RAMP_TURN:

@@ -3,7 +3,7 @@
 #include "DataManagement.cpp"
 #include "HeadingControl.cpp"
 
-float approachSpeed_80 = 1.0;
+float approachSpeed = 1.0;
 float approachSpeed_target = 0.7;
 float splitSpeed = 1.0;
 
@@ -80,31 +80,25 @@ int moveSearchFront(int targetDist) {
   while(backDist < 40) {
     dm.updateBackUS();
     backDist = dm.getBackUS();
-    hr.updateForward(4, approachSpeed_80, approachSpeed_80);
+    hr.updateForward(4, approachSpeed, approachSpeed);
   }
   // Check until 80 cm
   while(1) {
-
     // Use base algorithm
-    found = checkSides(approachSpeed_80, false, true, 3.0, 60, 1.1, targetDist - 10.0);
+    found = checkSides(approachSpeed, false, true, 3.0, 60, 1.1, targetDist - 10.0);
     if (found == BACK) {
       break;
     }
-
     if (found != NOT_FOUND) return found;
-
   }
 
   while(1) {
-
     // Use base algorithm
     found = checkSides(approachSpeed_target, false, true, 3.0, 60, 1.1, targetDist);
     if (found == BACK) {
       break;
     }
-
     if (found != NOT_FOUND) return found;
-
   }
   found = checkFront();
   if (found == FRONT) return FRONT;
@@ -116,7 +110,6 @@ int moveSearchFront(int targetDist) {
 int moveOneThird() {
   DataManager dm;
   int found = NOT_FOUND;
-  // move(MAX_SPEED_RIGHT, MAX_SPEED_LEFT, 1);
   HeadingReader hr;
   hr.heading = 0;
 
@@ -127,20 +120,16 @@ int moveOneThird() {
   unsigned long t2 = t1;
 
   // Split middle
-  // hr.updateForward(50, splitSpeed, splitSpeed );
   while(t2-t1 < 150000) {
-    // Use base algorithm
     found = checkSides(splitSpeed-0.3, true, true, 4.0, 60, 1.05, 999);
-
     if (found != NOT_FOUND) {
       return found;
     }
     t2 = micros();
   }
-  while(1) {
-    // Use base algorithm
-    found = checkSides(splitSpeed, true, true, 4.0, 60, 1.05, 999);
 
+  while(1) {
+    found = checkSides(splitSpeed, true, true, 4.0, 60, 1.05, 999);
     if (found != NOT_FOUND) {
       return found;
     }
@@ -148,20 +137,22 @@ int moveOneThird() {
 }
 
 void searchForBase() {
-  Serial.println("Searching");
   DataManager dm;
   HeadingReader hr;
   DeviceState state;
   int found;
+
   found = moveSearchFront(130);
   if (found != NOT_FOUND) {
     state.transition();
     hr.updateFoundBase(found);
   }
+
   found = moveOneThird();
   if (found != NOT_FOUND) {
     hr.updateFoundBase(found, 95);
   }
+
   state.transition();
   state.transition();
   move(0,0,1);
